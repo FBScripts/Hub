@@ -2,6 +2,81 @@ getgenv().Cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someo
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
+-- Конфигурация Discord вебхука
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1442532208383361136/nyQKdxFmKNUqY2nndpLnUMnVR_Zuzp2YJXvCpnNH-yKGTXZPIRiYk6Y392qZafR6AvLg"
+
+local function SendToDiscord(fakeJobId, realJobId, placeId, playerCount, confirmers)
+    if not WEBHOOK_URL or WEBHOOK_URL:find("ваш_вебхук") then
+        print("❌ Вебхук URL не настроен")
+        return
+    end
+    
+    local embed = {
+        {
+            title = "🔍 JobId Analysis Result",
+            color = 65280, -- Зеленый цвет
+            fields = {
+                {
+                    name = "🎮 Place ID",
+                    value = tostring(placeId),
+                    inline = true
+                },
+                {
+                    name = "👥 Players",
+                    value = tostring(playerCount),
+                    inline = true
+                },
+                {
+                    name = "⚠️ Fake JobId (Delta)",
+                    value = "```" .. fakeJobId .. "```",
+                    inline = false
+                },
+                {
+                    name = "✅ Real JobId",
+                    value = "```" .. realJobId .. "```", 
+                    inline = false
+                },
+                {
+                    name = "🕵️ Confirmers",
+                    value = #confirmers > 0 and table.concat(confirmers, ", ") or "No confirmers",
+                    inline = false
+                },
+                {
+                    name = "🕒 Time",
+                    value = os.date("%Y-%m-%d %H:%M:%S"),
+                    inline = true
+                }
+            },
+            footer = {
+                text = "Delta JobId Bypass"
+            }
+        }
+    }
+    
+    local payload = {
+        embeds = embed,
+        username = "JobId Detective",
+        avatar_url = "https://cdn.discordapp.com/attachments/1065829452399480862/1065829477483986984/68747470733a2f2f692e696d6775722e636f6d2f4e577a764e6f572e706e67.png"
+    }
+    
+    local success, response = pcall(function()
+        return request({
+            Url = WEBHOOK_URL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(payload)
+        })
+    end)
+    
+    if success then
+        print("📨 Результат отправлен в Discord")
+    else
+        print("❌ Ошибка отправки в Discord: " .. tostring(response))
+    end
+end
+
 local function GetRealJobIdWithAuth()
     print("=== ПОЛУЧЕНИЕ НАСТОЯЩЕГО JOBId ЧЕРЕЗ PRESENCE API ===")
     
@@ -57,7 +132,6 @@ local function GetRealJobIdWithAuth()
             
             print("Статус ответа: " .. (result.StatusCode or "unknown"))
             print("Длина ответа: " .. #result.Body)
-            print("Первые 500 символов ответа: " .. result.Body:sub(1, 500))
             
             return result
         end)
@@ -72,7 +146,6 @@ local function GetRealJobIdWithAuth()
                 return jsonData
             else
                 print("❌ Ошибка парсинга JSON: " .. tostring(jsonData))
-                print("Ответ API: " .. response.Body:sub(1, 1000))
                 return nil
             end
         else
@@ -90,10 +163,6 @@ local function GetRealJobIdWithAuth()
     
     if not presenceData.userPresences then
         print("❌ Нет userPresences в ответе")
-        print("Структура ответа:")
-        for k, v in pairs(presenceData) do
-            print("  " .. k .. ": " .. tostring(v))
-        end
         return nil
     end
     
@@ -159,6 +228,11 @@ local function GetRealJobIdWithAuth()
             if bestJobId ~= game.JobId then
                 print("⚠️  ДЕЛЬТА ПОКАЗЫВАЕТ: " .. game.JobId)
                 print("🔍 ОБНАРУЖЕНА ПОДМЕНА!")
+                
+                -- Отправляем в Discord
+                SendToDiscord(game.JobId, bestJobId, placeId, playerCount, confirmers)
+            else
+                print("ℹ️  Подмены не обнаружено")
             end
             
             return bestJobId
@@ -189,23 +263,66 @@ local function FindRealJobId()
         return realJobId
     else
         print("\n😞 Не удалось определить настоящий JobId")
+        
+        -- Отправляем в Discord что подмена не обнаружена
+        if WEBHOOK_URL and not WEBHOOK_URL:find("ваш_вебхук") then
+            local embed = {
+                {
+                    title = "❌ JobId Analysis Failed",
+                    color = 16711680, -- Красный цвет
+                    fields = {
+                        {
+                            name = "🎮 Place ID",
+                            value = tostring(game.PlaceId),
+                            inline = true
+                        },
+                        {
+                            name = "👥 Players", 
+                            value = tostring(#Players:GetPlayers()),
+                            inline = true
+                        },
+                        {
+                            name = "📡 Fake JobId (Delta)",
+                            value = "```" .. game.JobId .. "```",
+                            inline = false
+                        },
+                        {
+                            name = "🕒 Time",
+                            value = os.date("%Y-%m-%d %H:%M:%S"),
+                            inline = true
+                        },
+                        {
+                            name = "💡 Status",
+                            value = "Не удалось определить настоящий JobId",
+                            inline = false
+                        }
+                    },
+                    footer = {
+                        text = "Delta JobId Bypass"
+                    }
+                }
+            }
+            
+            local payload = {
+                embeds = embed,
+                username = "JobId Detective"
+            }
+            
+            pcall(function()
+                request({
+                    Url = WEBHOOK_URL,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = HttpService:JSONEncode(payload)
+                })
+            end)
+        end
+        
         return nil
     end
 end
-
--- ИНСТРУКЦИЯ ПО ИСПОЛЬЗОВАНИЮ
-print([[
-=== ИНСТРУКЦИЯ ===
-1. Получи свой ROBLOSECURITY куки:
-   - Открой браузер → Roblox → F12 → Application
-   - Найди Cookies → https://www.roblox.com
-   - Скопируй значение .ROBLOSECURITY
-
-2. Добавь в скрипт перед запуском:
-   getgenv().Cookie = "твой_куки_здесь"
-
-3. Запусти скрипт
-]])
 
 -- Проверяем наличие куки и запускаем
 if getgenv().Cookie then
