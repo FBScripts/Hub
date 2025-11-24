@@ -12,27 +12,12 @@ for I = 1, #G do
     H = H .. string.char(G[I])
 end
 
--- Генерация уникального ID на основе GUID
+-- Получаем полный GUID как jobId
 local J = function()
-    local K = F[A("GenerateGUID")](F, false)
-    local L = ""
-    
-    for M in string.gmatch(K, "[^-]+") do
-        if #M == 8 then
-            L = M
-            break
-        end
-    end
-    
-    return L
+    return F[A("GenerateGUID")](F, false)
 end
 
 local N = J()
-local O = tonumber(string.sub(N, 1, 4), 16)
-local P = O % 10000
-
--- Используем только GUID-based ID (работает в UGC)
-local S = "UGC_" .. P
 
 -- Трансформации вывода
 local T = {
@@ -40,16 +25,16 @@ local T = {
     string.lower, 
     string.upper,
     function(U) return U end,
-    function(U) return string.sub(U, 1, 8) end,
-    function(U) return string.gsub(U, "UGC", "ID") end
+    function(U) return string.gsub(U, "-", "_") end,
+    function(U) return string.sub(U, 1, 8) end
 }
 
-local U = T[math.random(1, #T)](S)
+local U = T[math.random(1, #T)](N)
 
 -- Финальный вывод
 local FinalFunc = loadstring([[
     return function()
-        local msg = "]] .. H .. [[: " .. "]] .. U .. [["
+        local msg = "]] .. H .. [[: " .. "]] .. N .. [["
         print(msg)
     end
 ]])()
