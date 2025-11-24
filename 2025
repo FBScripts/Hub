@@ -1,52 +1,189 @@
-local function GetJobId_Safe()
-    -- Способ 1: Разбитие строки
-    local part1 = "Job"
-    local part2 = "Id"
-    local full = part1 .. part2
-    if game[full] then
-        return game[full]
-    end
+getgenv().Cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_CAEaAhACIhsKBGR1aWQSEzk2MTA1NTI5NTY3MTI2MDQyNjYoAw.Q_bHAVD-HxDeSgomIU63hkyS89xZS1_97S9SjHOR7eTtf4XBzKdp6NaghwZ6iOSe043CoTzmZq_yVM-6b7kEUuoa8Cw8ech3loB2FyAiUoJZpB2wtUf-t-pfzWQGEdUYjiCTpVRyFTSU7ATuGGDR_9SVJzYICEwaKItC7wKbI4d_4WejHTiYOmv8ut8wC95Ipe3B1yOssRD6t_xSsAKyyo7skhulxPyBzXpMgLvKAyNLMETtZnZS5Ewl5Hp8ph7BDz2gmMWoYEaZ0gHswU20nbuLxpUwPSnqyUn0CWaeh3L0413PpsLPhuPc85MwgTYN_Px_9x22QywYzO_AP4I63cwe_-pdbFfChZg_kAkQ8BhvTXXLxzJHYvIeqtle0YOyO7SR3UnlX27iUs79KZcY-BidC-5AE9gOzOoaeCiMulCPGD02HDaGcD0VHXLpkwpWuK3VbYsyR045lpJpG5oiJXhCKehDPA6fgRFMt1FV5hgm10lgx8ihE-VY_UcZML1GFWphtfiv0doVwuXkkSDWEoOjw86t0C5WE4Uu_t7_j-S06KJfd7RcasGu2bAfxC49u7z_mxP4pyvN2t05DR48f4IjiSOv77OWFdO9JeWPckJzgNi_kmicTiKoDszXujiNNIjjeS0VCH8Jo6LCkcdOkfwDaTp-s0SqnXDLPhCSD7YAH8dxm6_YjPM5E5kDvg1aobkDu6KVmAjRFGxLyGpkBxvmoWLR03hcSTra5VUTOWp52uDqYT3D_5JtvYKE8E0oix3bx8l-vmUAfzM1DMh1jTkkqxMSP1rJh9lH2H0H5sLDLKIlJtL8kUkv6FvlQ0LcHfQjwgiVXQz_0Zm-YN7vU9F2kFP75RXRcOmdgvlwsgHs3FBOPhnydQwiEVGtzt-Ed3Ew6j4ukvX3v4SyV89luczy2Yg2WHBnxUhob-A58b_JSIjuv3JOqe_vcq5yya2fQaeGVXpjML7UmCY5X26DxDT2oRLIErYheHa4PEJF4_vxw1izxb9opVc5C3UOKjd9hHOfjysUsNzVHxk_tw8h5Z7mVKw40LwpbcZfoPrbl2Or6gp1BubaljahxhZmcKKN3HG1AuXlnZbkexR1v76FUGMi_n06RQrWVIgTi2ILRqKHZkF46nAfGPIgq6qeE-zKt9XEmMK3EesTHMjDa1HNINUT2JY"
+local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 
-    -- Способ 2: GetJobId
-    local getPart1 = "GetJob"
-    local getPart2 = "Id"
-    local getFull = getPart1 .. getPart2
-    if game[getFull] then
-        return game[getFull](game)
+local function GetRealJobIdWithAuth()
+    print("=== ПОЛУЧЕНИЕ JOBId С АУТЕНТИФИКАЦИЕЙ ===")
+    
+    -- Проверяем наличие куки
+    if not getgenv().Cookie then
+        print("❌ ROBLOSECURITY куки не найдена")
+        print("Добавь в скрипт: getgenv().Cookie = 'твой_куки_здесь'")
+        return nil
     end
-
-    -- Способ 3: Через TeleportService (возможно, у него есть методы для получения JobId)
-    local ts = game:GetService("TeleportService")
-    -- Проверяем, есть ли у TeleportService свойство JobId
-    if ts.JobId then
-        return ts.JobId
+    
+    local localPlayer = Players.LocalPlayer
+    if not localPlayer then return nil end
+    
+    local placeId = game.PlaceId
+    local playerCount = #Players:GetPlayers()
+    
+    -- Собираем userId всех игроков на сервере
+    local userIds = {}
+    local playerMap = {}
+    
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= localPlayer then
+            table.insert(userIds, player.UserId)
+            playerMap[player.UserId] = player.Name
+        end
     end
-
-    -- Способ 4: Ищем в метатаблице
-    local meta = getrawmetatable(game)
-    if meta then
-        for key, value in pairs(meta) do
-            if type(key) == "string" and (key:find("JobId") or key:find("HJobId")) then
-                return value
+    
+    if #userIds == 0 then
+        print("❌ На сервере нет других игроков для проверки")
+        return nil
+    end
+    
+    print("Проверяем " .. #userIds .. " игроков...")
+    
+    -- Функция для запроса к Presence API с аутентификацией
+    local function GetPresenceWithAuth(userIdsList)
+        local reqBody = HttpService:JSONEncode({
+            userIds = userIdsList
+        })
+        
+        local success, response = pcall(function()
+            return game:HttpGetAsync({
+                Url = "https://presence.roblox.com/v1/presence/users",
+                Method = "POST",
+                Headers = {
+                    ["Content-Type"] = "application/json",
+                    ["Cookie"] = ".ROBLOSECURITY=" .. tostring(getgenv().Cookie)
+                },
+                Body = reqBody
+            })
+        end)
+        
+        if success and response then
+            return HttpService:JSONDecode(response)
+        else
+            print("❌ Ошибка запроса: " .. tostring(response))
+            return nil
+        end
+    end
+    
+    -- Получаем Presence данные
+    local presenceData = GetPresenceWithAuth(userIds)
+    if not presenceData or not presenceData.userPresences then
+        print("❌ Не удалось получить Presence данные")
+        return nil
+    end
+    
+    -- Анализируем результаты
+    local foundJobIds = {}
+    local validResponses = 0
+    
+    for _, presence in pairs(presenceData.userPresences) do
+        if presence.placeId == placeId and presence.gameId then
+            validResponses = validResponses + 1
+            local jobId = presence.gameId
+            local playerName = playerMap[presence.userId] or "Unknown"
+            
+            if jobId and jobId ~= game.JobId then
+                print("🎯 " .. playerName .. " находится на сервере: " .. jobId)
+                table.insert(foundJobIds, {
+                    jobId = jobId,
+                    player = playerName,
+                    lastLocation = presence.lastLocation or "InGame"
+                })
+            else
+                print("ℹ️  " .. playerName .. " показывает тот же JobId что и у нас")
             end
         end
     end
-
-    -- Способ 5: Ищем в дочерних объектах игры
-    for _, child in pairs(game:GetChildren()) do
-        if child:IsA("StringValue") and (child.Name == "JobId" or child.Name == "HJobId") then
-            return child.Value
+    
+    print("Получено валидных ответов: " .. validResponses .. "/" .. #userIds)
+    
+    -- Анализируем найденные JobId
+    if #foundJobIds > 0 then
+        print("\n=== АНАЛИЗ РЕЗУЛЬТАТОВ ===")
+        
+        -- Группируем по JobId
+        local jobIdCounts = {}
+        for _, found in ipairs(foundJobIds) do
+            jobIdCounts[found.jobId] = (jobIdCounts[found.jobId] or 0) + 1
         end
+        
+        -- Находим наиболее частый JobId
+        local bestJobId, maxCount = nil, 0
+        for jobId, count in pairs(jobIdCounts) do
+            if count > maxCount then
+                bestJobId = jobId
+                maxCount = count
+            end
+        end
+        
+        if bestJobId then
+            print("🎉 НАСТОЯЩИЙ JOBID: " .. bestJobId)
+            print("Подтвержден " .. maxCount .. " игроками")
+            
+            -- Показываем подтверждающих игроков
+            local confirmers = {}
+            for _, found in ipairs(foundJobIds) do
+                if found.jobId == bestJobId then
+                    table.insert(confirmers, found.player)
+                end
+            end
+            
+            print("Подтверждают: " .. table.concat(confirmers, ", "))
+            
+            -- Сравниваем с Дельтой
+            if bestJobId ~= game.JobId then
+                print("⚠️  ДЕЛЬТА ПОКАЗЫВАЕТ: " .. game.JobId)
+                print("🔍 ОБНАРУЖЕНА ПОДМЕНА!")
+            end
+            
+            return bestJobId
+        end
+    else
+        print("❌ Все игроки показывают тот же JobId что и Дельта")
+        print("Возможные причины:")
+        print("- Все используют Дельту")
+        print("- Сервер новый и данные еще не обновились")
+        print("- Ограничения API")
     end
-
+    
     return nil
 end
 
-local jobId = GetJobId_Safe()
-if jobId then
-    print("JobId: " .. jobId)
+-- ГЛАВНАЯ ФУНКЦИЯ
+local function FindRealJobId()
+    print("🚀 ЗАПУСК ПОИСКА НАСТОЯЩЕГО JOBID")
+    
+    -- Сначала пробуем с аутентификацией (более надежно)
+    local realJobId = GetRealJobIdWithAuth()
+    
+    -- Если не сработало, пробуем резервный метод
+    if not realJobId then
+        print("\n🔄 Пробуем резервный метод...")
+        realJobId = GetJobIdViaGamesAPI()
+    end
+    
+    -- Результат
+    if realJobId then
+        print("\n✅ УСПЕХ! Настоящий JobId: " .. realJobId)
+        getgenv().RealJobId = realJobId
+        
+        -- Сохраняем в файл для других скриптов
+        pcall(function()
+            writefile("real_jobid.txt", realJobId)
+        end)
+        
+        return realJobId
+    else
+        print("\n😞 Не удалось определить настоящий JobId")
+        return nil
+    end
+end
+
+-- Проверяем наличие куки и запускаем
+if getgenv().Cookie then
+    local realJobId = FindRealJobId()
+    
+    if realJobId then
+        print("\n💡 Используй этот JobId для телепортации:")
+        print('TeleportService:TeleportToPlaceInstance(' .. game.PlaceId .. ', "' .. realJobId .. '")')
+    end
 else
-    -- Fallback: Generate a random GUID (но это не настоящий JobId)
-    local http = game:GetService("HttpService")
-    print("JobId: " .. http:GenerateGUID(false))
+    print("❌ Куки не установлена! Следуй инструкции выше.")
 end
