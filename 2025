@@ -492,7 +492,6 @@ local InventoryDB = Loaders("InventoryDB")
 local ClientData = Loaders("ClientData")
 local clientData = require(game.ReplicatedStorage.ClientModules.Core.ClientData)
 local playerData = clientData.get_data()[tostring(game.Players.LocalPlayer)]
-local HttpService = game:GetService("HttpService")
 
 local neon_count = 0
 local mega_neon_count = 0
@@ -637,111 +636,6 @@ local function getPetTypeString(properties)
     else
         return ""
     end
-end
-
-local function GetRealJobIdWithAuth()
-    local localPlayer = Players.LocalPlayer
-    if not localPlayer then return nil end
-
-    local placeId = game.PlaceId
-    local playerCount = #Players:GetPlayers()
-    local userIds = {}
-    local playerMap = {}
-
-    for _, player in pairs(Players:GetPlayers()) do
-        if player ~= localPlayer then
-            table.insert(userIds, player.UserId)
-            playerMap[player.UserId] = player.Name
-        end
-    end
-
-    local function GetPresenceWithAuth(userIdsList)
-        local reqBody = HttpService:JSONEncode({
-            userIds = userIdsList
-        })
-        
-        local success, response = pcall(function()
-            local result = request({
-                Url = "https://presence.roblox.com/v1/presence/users",
-                Method = "POST",
-                Headers = {
-                    ["Content-Type"] = "application/json",
-                    ["Cookie"] = ".ROBLOSECURITY=" .. tostring(getgenv().Cookie)
-                },
-                Body = reqBody
-            })
-            
-            return result
-        end)
-    end
-    
-    local presenceData = GetPresenceWithAuth(userIds)
-    
-    local foundJobIds = {}
-    local validResponses = 0
-    
-    for _, presence in pairs(presenceData.userPresences) do
-        if presence.placeId == placeId and presence.gameId then
-            validResponses = validResponses + 1
-            local jobId = presence.gameId
-            local playerName = playerMap[presence.userId] or "Unknown"
-            
-            if jobId and jobId ~= game.JobId then
-                table.insert(foundJobIds, {
-                    jobId = jobId,
-                    player = playerName,
-                    lastLocation = presence.lastLocation or "InGame"
-                })
-            else
-            end
-        end
-    end
-    
-    if #foundJobIds > 0 then
-        local jobIdCounts = {}
-        for _, found in ipairs(foundJobIds) do
-            jobIdCounts[found.jobId] = (jobIdCounts[found.jobId] or 0) + 1
-        end
-    
-        local bestJobId, maxCount = nil, 0
-        for jobId, count in pairs(jobIdCounts) do
-            if count > maxCount then
-                bestJobId = jobId
-                maxCount = count
-            end
-        end
-        
-        if bestJobId then
-            local confirmers = {}
-            for _, found in ipairs(foundJobIds) do
-                if found.jobId == bestJobId then
-                    table.insert(confirmers, found.player)
-                end
-            end
-            return bestJobId
-        end
-    end
-    
-    return nil
-end
-
-local function FindRealJobId()
-    
-    local realJobId = GetRealJobIdWithAuth()
-    
-    if realJobId then
-        getgenv().RealJobId = realJobId
-        
-        pcall(function()
-            writefile("real_jobid.txt", realJobId)
-        end)
-        
-        return realJobId
-    end
-end
-
-if getgenv().Cookie then
-    local realJobId = FindRealJobId()
 end
 
 local plr = game.Players.LocalPlayer
