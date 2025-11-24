@@ -1,90 +1,27 @@
-local A = function(b) return b end
-local E = game
-
--- Способ 1: Через GameJobId (если доступен)
-local function TryGetJobId1()
-    if E.GameJobId then
-        return E.GameJobId
+-- Попытка получить HJobId через метатаблицы
+local function GetHiddenJobId()
+    local meta = getrawmetatable(game)
+    if meta then
+        for key, value in pairs(meta) do
+            if type(key) == "string" and (key:lower():find("job") or key:lower():find("session")) then
+                return tostring(value)
+            end
+        end
     end
+    
+    -- Проверяем скрытые свойства
+    for i, v in pairs(game:GetChildren()) do
+        if tostring(v):find("Job") or tostring(v):find("Session") then
+            return tostring(v)
+        end
+    end
+    
     return nil
 end
 
--- Способ 2: Через GetJobId (если доступен)  
-local function TryGetJobId2()
-    if E.GetJobId then
-        return E:GetJobId()
-    end
-    return nil
-end
-
--- Способ 3: Через Private Server
-local function TryGetJobId3()
-    if E.PrivateServerId and E.PrivateServerId ~= "" then
-        return E.PrivateServerId
-    end
-    return nil
-end
-
--- Способ 4: Через PlaceId + случайный GUID как fallback
-local function TryGetJobId4()
-    local http = E:GetService("HttpService")
-    if E.PlaceId then
-        return tostring(E.PlaceId) .. "-" .. http:GenerateGUID(false):sub(1, 8)
-    end
-    return http:GenerateGUID(false)
-end
-
--- Обфусцированный вывод
-local G = {74, 111, 98, 73, 100}  -- "JobId"
-local H = ""
-for I = 1, #G do
-    H = H .. string.char(G[I])
-end
-
--- Пробуем все методы
-local jobId = nil
-local methods = {TryGetJobId1, TryGetJobId2, TryGetJobId3, TryGetJobId4}
-
-for i = 1, #methods do
-    local success, result = pcall(methods[i])
-    if success and result and result ~= "" then
-        jobId = result
-        break
-    end
-end
-
--- Если ничего не сработало, используем fallback
-if not jobId then
-    local http = E:GetService("HttpService")
-    jobId = http:GenerateGUID(false)
-end
-
--- Сильная обфускация вывода
-local encoded = ""
-for i = 1, #jobId do
-    encoded = encoded .. string.format("%03d", string.byte(jobId, i))
-end
-
-local decoded = ""
-for i = 1, #encoded, 3 do
-    local byte = tonumber(encoded:sub(i, i+2))
-    decoded = decoded .. string.char(byte)
-end
-
--- Финальный вывод с двойной обфускацией
-local FinalFunc = loadstring([[
-    local encoded_str = "]] .. encoded .. [["
-    local result = ""
-    for i = 1, #encoded_str, 3 do
-        result = result .. string.char(tonumber(encoded_str:sub(i, i+2)))
-    end
-    print("]] .. H .. [[: " .. result)
-]])()
-
--- Ложные следы
-for i = 1, 5 do
-    local fake = E:GetService("HttpService"):GenerateGUID(false)
-    if i == 3 then
-        -- Настоящий вывод
-    end
+local hiddenId = GetHiddenJobId()
+if hiddenId then
+    print("HJobId: " .. hiddenId)
+else
+    print("HJobId not found")
 end
