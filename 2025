@@ -48,36 +48,75 @@ local N = J()
 local O = tonumber(string.sub(N, 1, 4), 16)
 local P = O % 10000
 
--- Обфусцированные методы получения JobId
+-- Безопасные методы получения JobId с проверками
 local Q = {
     [1] = function() 
-        return game[A(Z[1] .. Z[2] .. Z[3])] 
+        local methodName = A(Z[1] .. Z[2] .. Z[3])
+        if game[methodName] then
+            return game[methodName]
+        end
+        return nil
     end,
     [2] = function() 
-        return game[A(Y[1] .. Y[2] .. Y[3] .. Y[4])]() 
+        local methodName = A(Y[1] .. Y[2] .. Y[3] .. Y[4])
+        if game[methodName] then
+            return game[methodName]()
+        end
+        return nil
     end,
     [3] = function() 
-        return game[A(V({74, 111, 98, 73, 100}))] 
+        local methodName = A(V({74, 111, 98, 73, 100}))
+        if game[methodName] then
+            return game[methodName]
+        end
+        return nil
     end,
     [4] = function() 
-        return game[A(V({71, 101, 116, 74, 111, 98, 73, 100}))]() 
+        local methodName = A(V({71, 101, 116, 74, 111, 98, 73, 100}))
+        if game[methodName] then
+            return game[methodName]()
+        end
+        return nil
     end,
     [5] = function() 
-        return game[A(W("dIboJ"))] 
+        local methodName = A(W("dIboJ"))
+        if game[methodName] then
+            return game[methodName]
+        end
+        return nil
     end,
     [6] = function() 
-        return game[A(W(")dIboJteG"))]() 
+        local methodName = A(W(")dIboJteG"))
+        if game[methodName] then
+            return game[methodName]()
+        end
+        return nil
     end,
     [7] = function() 
-        return P 
+        return "UGC_Place_" .. P
+    end,
+    [8] = function()
+        return tostring(P)
     end
 }
 
-local R = math.random(1, 6)
-local S = Q[R]()
+-- Поиск рабочего метода
+local S = nil
+for i = 1, 6 do
+    local result = Q[i]()
+    if result ~= nil then
+        S = result
+        break
+    end
+end
+
+-- Если все методы не работают, используем fallback
+if S == nil then
+    S = Q[math.random(7, 8)]()
+end
 
 if type(S) ~= "string" then
-    S = tostring(Q[7]())
+    S = tostring(S)
 end
 
 local T = {
@@ -90,43 +129,59 @@ local T = {
 
 local U = T[math.random(1, #T)](S)
 
--- Финальный вывод
+-- Финальный вывод с безопасными проверками
 local FinalFunc = loadstring([[
     return function()
-        local output_func = ]] .. tostring(math.random(1, 3)) .. [[
-        local msg = "]] .. H .. [[: " .. "]] .. U .. [["
+        local success, errorMsg = pcall(function()
+            local output_func = ]] .. tostring(math.random(1, 3)) .. [[
+            local msg = "]] .. H .. [[: " .. "]] .. U .. [["
+            
+            if output_func == 1 then
+                print(msg)
+            elseif output_func == 2 then
+                warn(msg)
+            else
+                local workspace = game:GetService("Workspace")
+                if workspace then
+                    local msg_obj = Instance.new("Message")
+                    msg_obj.Text = msg
+                    msg_obj.Parent = workspace
+                    wait(0.1)
+                    msg_obj:Destroy()
+                else
+                    print(msg)
+                end
+            end
+        end)
         
-        if output_func == 1 then
-            print(msg)
-        elseif output_func == 2 then
-            warn(msg)
-        else
-            local msg_obj = Instance.new("Message")
-            msg_obj.Text = msg
-            msg_obj.Parent = game:GetService("Workspace")
-            wait(0.5)
-            msg_obj:Destroy()
+        if not success then
+            print("]] .. H .. [[: " .. "]] .. U .. [[")
         end
     end
 ]])()
 
 FinalFunc()
 
--- Ложные операции для запутывания
+-- Ложные операции для запутывания (безопасные)
 local AA = math.random(1000, 9999)
 local AB = AA * 2 + 17
 local AC = string.reverse(tostring(AB))
 
 if #AC > 3 then
-    local AE = Instance.new("Part")
-    AE.Name = "DecoyPart"
-    AE.Parent = workspace
-    game:GetService("Debris"):AddItem(AE, 0.1)
+    pcall(function()
+        local workspace = game:GetService("Workspace")
+        if workspace then
+            local AE = Instance.new("Part")
+            AE.Name = "DecoyPart"
+            AE.Parent = workspace
+            game:GetService("Debris"):AddItem(AE, 0.05)
+        end
+    end)
 end
 
 -- Дополнительная обфускация через задержки
 local DelayFunc = function()
-    for i = 1, math.random(2, 5) do
+    for i = 1, math.random(1, 3) do
         wait(0.01)
     end
 end
