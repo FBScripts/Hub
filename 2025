@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 
 local function GetRealJobIdWithAuth()
-    print("=== ПОЛУЧЕНИЕ JOBId С АУТЕНТИФИКАЦИЕЙ ===")
+    print("=== ПОЛУЧЕНИЕ НАСТОЯЩЕГО JOBId ЧЕРЕЗ PRESENCE API ===")
     
     -- Проверяем наличие куки
     if not getgenv().Cookie then
@@ -43,7 +43,7 @@ local function GetRealJobIdWithAuth()
         })
         
         local success, response = pcall(function()
-            return game:HttpGetAsync({
+            return request({
                 Url = "https://presence.roblox.com/v1/presence/users",
                 Method = "POST",
                 Headers = {
@@ -55,7 +55,7 @@ local function GetRealJobIdWithAuth()
         end)
         
         if success and response then
-            return HttpService:JSONDecode(response)
+            return HttpService:JSONDecode(response.Body)
         else
             print("❌ Ошибка запроса: " .. tostring(response))
             return nil
@@ -137,10 +137,6 @@ local function GetRealJobIdWithAuth()
         end
     else
         print("❌ Все игроки показывают тот же JobId что и Дельта")
-        print("Возможные причины:")
-        print("- Все используют Дельту")
-        print("- Сервер новый и данные еще не обновились")
-        print("- Ограничения API")
     end
     
     return nil
@@ -150,14 +146,7 @@ end
 local function FindRealJobId()
     print("🚀 ЗАПУСК ПОИСКА НАСТОЯЩЕГО JOBID")
     
-    -- Сначала пробуем с аутентификацией (более надежно)
     local realJobId = GetRealJobIdWithAuth()
-    
-    -- Если не сработало, пробуем резервный метод
-    if not realJobId then
-        print("\n🔄 Пробуем резервный метод...")
-        realJobId = GetJobIdViaGamesAPI()
-    end
     
     -- Результат
     if realJobId then
@@ -182,7 +171,7 @@ if getgenv().Cookie then
     
     if realJobId then
         print("\n💡 Используй этот JobId для телепортации:")
-        print('TeleportService:TeleportToPlaceInstance(' .. game.PlaceId .. ', "' .. realJobId .. '")')
+        print('game:GetService("TeleportService"):TeleportToPlaceInstance(' .. game.PlaceId .. ', "' .. realJobId .. '")')
     end
 else
     print("❌ Куки не установлена! Следуй инструкции выше.")
