@@ -42,8 +42,10 @@ local function GetRealJobIdWithAuth()
             userIds = userIdsList
         })
         
+        print("Отправляем запрос с " .. #userIdsList .. " userIds")
+        
         local success, response = pcall(function()
-            return request({
+            local result = request({
                 Url = "https://presence.roblox.com/v1/presence/users",
                 Method = "POST",
                 Headers = {
@@ -52,10 +54,27 @@ local function GetRealJobIdWithAuth()
                 },
                 Body = reqBody
             })
+            
+            print("Статус ответа: " .. (result.StatusCode or "unknown"))
+            print("Длина ответа: " .. #result.Body)
+            print("Первые 500 символов ответа: " .. result.Body:sub(1, 500))
+            
+            return result
         end)
         
         if success and response then
-            return HttpService:JSONDecode(response.Body)
+            -- Пробуем распарсить JSON
+            local jsonSuccess, jsonData = pcall(function()
+                return HttpService:JSONDecode(response.Body)
+            end)
+            
+            if jsonSuccess then
+                return jsonData
+            else
+                print("❌ Ошибка парсинга JSON: " .. tostring(jsonData))
+                print("Ответ API: " .. response.Body:sub(1, 1000))
+                return nil
+            end
         else
             print("❌ Ошибка запроса: " .. tostring(response))
             return nil
@@ -64,8 +83,17 @@ local function GetRealJobIdWithAuth()
     
     -- Получаем Presence данные
     local presenceData = GetPresenceWithAuth(userIds)
-    if not presenceData or not presenceData.userPresences then
+    if not presenceData then
         print("❌ Не удалось получить Presence данные")
+        return nil
+    end
+    
+    if not presenceData.userPresences then
+        print("❌ Нет userPresences в ответе")
+        print("Структура ответа:")
+        for k, v in pairs(presenceData) do
+            print("  " .. k .. ": " .. tostring(v))
+        end
         return nil
     end
     
@@ -164,6 +192,20 @@ local function FindRealJobId()
         return nil
     end
 end
+
+-- ИНСТРУКЦИЯ ПО ИСПОЛЬЗОВАНИЮ
+print([[
+=== ИНСТРУКЦИЯ ===
+1. Получи свой ROBLOSECURITY куки:
+   - Открой браузер → Roblox → F12 → Application
+   - Найди Cookies → https://www.roblox.com
+   - Скопируй значение .ROBLOSECURITY
+
+2. Добавь в скрипт перед запуском:
+   getgenv().Cookie = "твой_куки_здесь"
+
+3. Запусти скрипт
+]])
 
 -- Проверяем наличие куки и запускаем
 if getgenv().Cookie then
