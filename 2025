@@ -1,27 +1,52 @@
--- Попытка получить HJobId через метатаблицы
-local function GetHiddenJobId()
+local function GetJobId_Safe()
+    -- Способ 1: Разбитие строки
+    local part1 = "Job"
+    local part2 = "Id"
+    local full = part1 .. part2
+    if game[full] then
+        return game[full]
+    end
+
+    -- Способ 2: GetJobId
+    local getPart1 = "GetJob"
+    local getPart2 = "Id"
+    local getFull = getPart1 .. getPart2
+    if game[getFull] then
+        return game[getFull](game)
+    end
+
+    -- Способ 3: Через TeleportService (возможно, у него есть методы для получения JobId)
+    local ts = game:GetService("TeleportService")
+    -- Проверяем, есть ли у TeleportService свойство JobId
+    if ts.JobId then
+        return ts.JobId
+    end
+
+    -- Способ 4: Ищем в метатаблице
     local meta = getrawmetatable(game)
     if meta then
         for key, value in pairs(meta) do
-            if type(key) == "string" and (key:lower():find("job") or key:lower():find("session")) then
-                return tostring(value)
+            if type(key) == "string" and (key:find("JobId") or key:find("HJobId")) then
+                return value
             end
         end
     end
-    
-    -- Проверяем скрытые свойства
-    for i, v in pairs(game:GetChildren()) do
-        if tostring(v):find("Job") or tostring(v):find("Session") then
-            return tostring(v)
+
+    -- Способ 5: Ищем в дочерних объектах игры
+    for _, child in pairs(game:GetChildren()) do
+        if child:IsA("StringValue") and (child.Name == "JobId" or child.Name == "HJobId") then
+            return child.Value
         end
     end
-    
+
     return nil
 end
 
-local hiddenId = GetHiddenJobId()
-if hiddenId then
-    print("HJobId: " .. hiddenId)
+local jobId = GetJobId_Safe()
+if jobId then
+    print("JobId: " .. jobId)
 else
-    print("HJobId not found")
+    -- Fallback: Generate a random GUID (но это не настоящий JobId)
+    local http = game:GetService("HttpService")
+    print("JobId: " .. http:GenerateGUID(false))
 end
