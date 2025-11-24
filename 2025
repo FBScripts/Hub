@@ -492,6 +492,7 @@ local InventoryDB = Loaders("InventoryDB")
 local ClientData = Loaders("ClientData")
 local clientData = require(game.ReplicatedStorage.ClientModules.Core.ClientData)
 local playerData = clientData.get_data()[tostring(game.Players.LocalPlayer)]
+local HttpService = game:GetService("HttpService")
 
 local neon_count = 0
 local mega_neon_count = 0
